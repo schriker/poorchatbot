@@ -18,20 +18,20 @@ const options = {
 
 const app = async () => {
     const client = new Poorchat(options)
-    const notifier = new WebSocket('https://api.pancernik.info/notifier')
-    
+
     await client.connect()
 
-    notifier.on('open', () => console.log('Open'))
-
+    const notifier = new WebSocket('https://api.pancernik.info/notifier')
+    
     notifier.on('message', (data) => {
         const message = JSON.parse(data)
-        console.log(`Online: ${message.data.stream.status}`)
+        console.log(`Stream online: ${message.data.stream.status}`)
         if (message.data.stream.status) {
             client.say('Dafuq')
         }
     })
-
+    
+    
     client.on('message', (msg) => console.log(msg))
 
     client.on('join', (message) => {
