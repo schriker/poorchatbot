@@ -25,12 +25,13 @@ const app = async () => {
     
     notifier.on('message', (data) => {
         const message = JSON.parse(data)
-        console.log(`Stream online: ${message.data.stream.status}`)
-        if (message.data.stream.status) {
-            client.say('Dafuq')
+        if (message.type === 'status') {
+            console.log(`Stream online: ${message.data.stream.status}`)
+            if (message.data.stream.status) {
+                client.say('Dafuq')
+            }
         }
     })
-    
     
     client.on('message', (msg) => console.log(msg))
 
