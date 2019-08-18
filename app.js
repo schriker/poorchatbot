@@ -1,7 +1,8 @@
 const Poorchat = require('./poorchat')
+const WebSocket = require('ws')
 
 const options = {
-    websocket: 'wss://irc.poorchat.net/',
+    websocket: 'https://irc.poorchat.net/',
     irc: 'irc.poorchat.net',
     channel: '#jadisco',
     login: process.env.USER_LOGIN,
@@ -17,14 +18,27 @@ const options = {
 
 const app = async () => {
     const client = new Poorchat(options)
+    const notifier = new WebSocket('https://api.pancernik.info/notifier')
+    
     await client.connect()
 
+    notifier.on('open', () => console.log('Open'))
+
+    notifier.on('message', (data) => {
+        const message = JSON.parse(data)
+        console.log(`Online: ${message.data.stream.status}`)
+        if (message.data.stream.status) {
+            client.say('Dafuq')
+        }
+    })
+
     client.on('message', (msg) => console.log(msg))
-    
+
     client.on('join', (message) => {
         const user = message.prefix.split('!')[0]
-        if (user === 'Wonziu') {
-            client.say('Siema Wonziu o7')
+        console.log(`${user} has joined!`)
+        if (user === 'Wonziu' || user === 'dzej') {
+            setTimeout(() => client.say(`Siema ${user} o7`), 2000)
         }
     })
 }

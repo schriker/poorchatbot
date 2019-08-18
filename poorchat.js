@@ -56,6 +56,7 @@ class Poorchat extends EventEmitter {
                 }
     
                 if (message.command === 'JOIN' && message.prefix.split('!')[0] === this.login) {
+                    console.log('IRC Conected!')
                     resolve()
                 }
 
