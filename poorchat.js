@@ -33,7 +33,7 @@ class Poorchat extends EventEmitter {
     }
 
     say(data) {
-        const encodedMessage = this.messageEncode(`PRIVMSG ${this.channel} ${data}`)
+        const encodedMessage = this.messageEncode(`PRIVMSG ${this.channel} :${data}`)
         this.ws.send(encodedMessage)
     }
 
