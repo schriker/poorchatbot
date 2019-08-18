@@ -31,7 +31,6 @@ const app = async () => {
         }
     })
     
-    
     client.on('message', (msg) => console.log(msg))
 
     client.on('join', (message) => {
