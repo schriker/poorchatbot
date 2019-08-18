@@ -4,7 +4,7 @@ const options = {
     websocket: 'wss://irc.poorchat.net/',
     irc: 'irc.poorchat.net',
     channel: '#jadisco',
-    login: process.env.USER_NAME,
+    login: process.env.USER_LOGIN,
     password: process.env.USER_PASSWORD,
     cap: [
         'CAP REQ :poorchat.net/color',
@@ -18,8 +18,15 @@ const options = {
 const app = async () => {
     const client = new Poorchat(options)
     await client.connect()
-    // client.sendMessage('Test')
+
     client.on('message', (msg) => console.log(msg))
+    
+    client.on('join', (message) => {
+        const user = message.prefix.split('!')[0]
+        if (user === 'Wonziu') {
+            client.say('Siema Wonziu o7')
+        }
+    })
 }
 
 app()

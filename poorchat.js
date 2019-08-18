@@ -32,6 +32,11 @@ class Poorchat extends EventEmitter {
         return parse(decodedMessage)
     }
 
+    say(data) {
+        const encodedMessage = this.messageEncode(`PRIVMSG ${this.channel} ${data}`)
+        this.ws.send(encodedMessage)
+    }
+
     connect() {
         return new Promise((resolve) => {
             this.ws.on('open', () => {
@@ -40,19 +45,24 @@ class Poorchat extends EventEmitter {
                 for (const cap of this.cap) {
                     this.sendMessage(cap)
                 }
-                this.sendMessage('CAP END')                
+                this.sendMessage('CAP END')
             })
             this.ws.on('message', (data) => {
                 const message = this.readMessage(data)
+
                 if (message.command === '422') {
-                    this.sendMessage(`PRIVMSG Poorchat :LOGIN ${this.login} ${this.password}`)
-                    this.sendMessage(`JOIN ${this.channel}`)
+                this.sendMessage(`PRIVMSG Poorchat :LOGIN ${this.login} ${this.password}`)
+                this.sendMessage(`JOIN ${this.channel}`)
                 }
+    
+                if (message.command === 'JOIN' && message.prefix.split('!')[0] === this.login) {
+                    resolve()
+                }
+
                 this.messageHandler(message)
                 if (this.debug) {
                     console.log(message)
                 }
-                resolve()
             })
         })
     }
@@ -66,7 +76,7 @@ class Poorchat extends EventEmitter {
                 this.emit('message', message)
                 break
             case 'JOIN':
-                this.emit('joined', message)
+                this.emit('join', message)
                 break
             case 'PART':
                 this.emit('part', message)
