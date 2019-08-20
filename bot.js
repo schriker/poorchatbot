@@ -1,0 +1,93 @@
+const Poorchat = require('./poorchat')
+const WebSocket = require('ws')
+const ora = require('ora')
+const chalk = require('chalk')
+const ogs = require('open-graph-scraper')
+const Message = require('./models/message')
+
+const bot = async () => {
+    const options = {
+        websocket: 'https://irc.poorchat.net/',
+        irc: 'irc.poorchat.net',
+        channel: '#jadisco',
+        login: process.env.USER_LOGIN,
+        password: process.env.USER_PASSWORD,
+        cap: [
+            'CAP REQ :poorchat.net/color',
+            'CAP REQ :poorchat.net/subscription',
+            'CAP REQ :poorchat.net/subscriptiongifter',
+            'CAP REQ :multi-prefix'
+        ],
+        debug: false
+    }
+    const spinner = ora({
+        prefixText: `${chalk.bgYellow.black('[Listening]')}`,
+        color: 'yellow',
+        spinner: 'line'
+    })
+    const client = new Poorchat(options)
+    await client.connect()
+
+    const notifier = new WebSocket('https://api.pancernik.info/notifier')
+    
+    notifier.on('message', (data) => {
+        const message = JSON.parse(data)
+        if (message.type === 'ping') {
+            const pong = JSON.stringify({ type: 'pong' })
+            notifier.send(pong)
+        }
+        if ((message.type === 'status' || message.type === 'update') && message.data.stream !== undefined) {
+            if (message.data.stream.status) {
+                console.log(`${chalk.bgCyan.black('Stream:')}${chalk.bgGreen.black('[online]')}`)
+                client.say('Dafuq')
+                client.on('message', messageHandler)
+                spinner.start()
+            } else if (!message.data.stream.status) {
+                console.log(`${chalk.bgCyan.black('Stream:')}${chalk.bgRed.black('[offline]')}`)
+                client.say('PepeHands')
+                client.off('message', messageHandler)
+                spinner.stop()
+            }
+
+        }
+    })
+
+    const messageHandler = async (IRCMessage) => {
+        const messageBody = IRCMessage.params[1]
+        
+        let subscription = 0
+        let subscriptiongifter = 0
+        
+        if (IRCMessage.tags['poorchat.net/subscription']) {
+            subscription = JSON.parse(IRCMessage.tags['poorchat.net/subscription'].replace('\\s', ' ')).months
+        }
+
+        if (IRCMessage.tags['poorchat.net/subscriptiongifter']) {
+            subscriptiongifter = JSON.parse(IRCMessage.tags['poorchat.net/subscriptiongifter'].replace('\\s', ' ')).months
+        }
+
+        const messageData = {
+            author: IRCMessage.prefix.split('!')[0],
+            body: messageBody,
+            color: IRCMessage.tags['poorchat.net/color'] || '#8000FF',
+            subscription: subscription,
+            subscriptiongifter: subscriptiongifter
+        }
+        const message = new Message(messageData)
+        try {
+            await message.save()
+        } catch (error) {
+            console.log(error)
+        }
+        console.log('\n', messageData)
+    }
+    
+    client.on('join', (message) => {
+        const user = message.prefix.split('!')[0]
+        if (user === 'Wonziu' || user === 'dzej') {
+            client.say('monkaS')
+        }
+    })
+}
+
+module.exports = bot

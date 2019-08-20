@@ -42,7 +42,7 @@ class Poorchat extends EventEmitter {
     connect() {
         return new Promise((resolve) => {
             const spinner = ora({
-                prefixText: `${chalk.bgYellow.black('[Connecting]')}`,
+                prefixText: `${chalk.bgYellow.black('[IRC Connecting]')}`,
                 color: 'yellow',
                 spinner: 'line'
             })
@@ -64,8 +64,7 @@ class Poorchat extends EventEmitter {
                 }
     
                 if (message.command === 'JOIN' && message.prefix.split('!')[0] === this.login) {
-                    spinner.stopAndPersist()
-                    console.log(`${chalk.bgGreen.black('[IRC Connected]\n')}`)
+                    spinner.succeed(`${chalk.bgGreen.black('[Connected]\n')}`)
                     resolve()
                 }
 
