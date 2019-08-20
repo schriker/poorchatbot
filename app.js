@@ -24,12 +24,18 @@ const app = async () => {
     
     notifier.on('message', (data) => {
         const message = JSON.parse(data)
-        if (message.type === 'status') {
-            console.log(`Stream online: ${message.data.stream.status}`)
+        console.log(message)
+        if (message.type === 'ping') {
+            const pong = JSON.stringify({ type: 'pong' })
+            notifier.send(pong)
+        }
+        if ((message.type === 'status' || message.type === 'update') && message.data.stream.status !== undefined) {
             if (message.data.stream.status) {
+                console.log(`Stream online!`)
                 client.say('Dafuq')
                 client.on('message', messageHandler)
             } else if (!message.data.stream.status) {
+                console.log(`Stream offline!`)
                 client.say('PepeHands')
                 client.off('message', messageHandler)
             }
@@ -43,9 +49,8 @@ const app = async () => {
     
     client.on('join', (message) => {
         const user = message.prefix.split('!')[0]
-        console.log(`${user} has joined!`)
         if (user === 'Wonziu' || user === 'dzej') {
-            setTimeout(() => client.say(`Siema ${user} o7`), 2000)
+            client.say(`monkaS`)
         }
     })
 }
