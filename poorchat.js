@@ -1,6 +1,8 @@
 const WebSocket = require('ws')
 const EventEmitter = require('events')
 const parse = require('irc-message').parse
+const ora = require('ora')
+const chalk = require('chalk')
 
 class Poorchat extends EventEmitter {
     constructor(options) {
@@ -39,7 +41,13 @@ class Poorchat extends EventEmitter {
 
     connect() {
         return new Promise((resolve) => {
+            const spinner = ora({
+                prefixText: `${chalk.bgYellow.black('[Connecting]')}`,
+                color: 'yellow',
+                spinner: 'line'
+            })
             this.ws.on('open', () => {
+                spinner.start()
                 this.sendMessage(`NICK ${this.login}`)
                 this.sendMessage(`USER ${this.login} ${this.options.irc} Poorchat ${this.login}`)
                 for (const cap of this.cap) {
@@ -56,7 +64,8 @@ class Poorchat extends EventEmitter {
                 }
     
                 if (message.command === 'JOIN' && message.prefix.split('!')[0] === this.login) {
-                    console.log('IRC Conected!')
+                    spinner.stopAndPersist()
+                    console.log(`${chalk.bgGreen.black('[IRC Connected]\n')}`)
                     resolve()
                 }
 

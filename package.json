@@ -14,7 +14,9 @@
     "nodemon": "^1.19.1"
   },
   "dependencies": {
+    "chalk": "^2.4.2",
     "irc-message": "^3.0.2",
+    "ora": "^3.4.0",
     "ws": "^7.1.2"
   }
 }
