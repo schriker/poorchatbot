@@ -32,12 +32,13 @@ const bot = async () => {
     
     notifier.on('message', (data) => {
         const message = JSON.parse(data)
+        console.log(message)
         if (message.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
             notifier.send(pong)
         }
         if ((message.type === 'status' || message.type === 'update') && message.data.stream !== undefined) {
-            if (message.data.stream.status) {
+            if (message.data.stream.viewers > 0) {
                 console.log(`${chalk.bgCyan.black('Stream:')}${chalk.bgGreen.black('[online]')}`)
                 client.say('Dafuq')
                 client.on('message', messageHandler)
@@ -73,12 +74,12 @@ const bot = async () => {
             subscription: subscription,
             subscriptiongifter: subscriptiongifter
         }
-        const message = new Message(messageData)
-        try {
-            await message.save()
-        } catch (error) {
-            console.log(error)
-        }
+        // const message = new Message(messageData)
+        // try {
+        //     await message.save()
+        // } catch (error) {
+        //     console.log(error)
+        // }
         console.log('\n', messageData)
     }
     
