@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const ora = require('ora')
 const chalk = require('chalk')
 const bot = require('./bot')
+const config = require('./config.json')
 
 const spinner = ora({
   prefixText: `${chalk.bgYellow.black('[DB Connecting]')}`,
@@ -10,7 +11,7 @@ const spinner = ora({
 })
 
 spinner.start()
-mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS}@cluster0-vsmqj.mongodb.net/${process.env.DB_NAME}?retryWrites=true`, {
+mongoose.connect(`mongodb+srv://${config.DB_USERNAME}:${config.DB_PASS}@cluster0-vsmqj.mongodb.net/${config.DB_NAME}?retryWrites=true`, {
   useNewUrlParser: true,
   useFindAndModify: false
   })

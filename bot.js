@@ -2,16 +2,16 @@ const Poorchat = require('./poorchat')
 const WebSocket = require('ws')
 const ora = require('ora')
 const chalk = require('chalk')
-const ogs = require('open-graph-scraper')
 const Message = require('./models/message')
+const config = require('./config.json')
 
 const bot = async () => {
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
         channel: '#jadisco',
-        login: process.env.USER_LOGIN,
-        password: process.env.USER_PASSWORD,
+        login: config.USER_LOGIN,
+        password: config.USER_PASSWORD,
         cap: [
             'CAP REQ :poorchat.net/color',
             'CAP REQ :poorchat.net/subscription',
