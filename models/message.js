@@ -20,7 +20,8 @@ const messageSchema = new Schema({
   }, 
   {
     timestamps: { 
-      createdAt: 'created_at'
+      createdAt: true,
+      updatedAt: false
     }
   })
 
