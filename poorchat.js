@@ -1,4 +1,5 @@
 const WebSocket = require('ws')
+const ReconnectingWebSocket= require('reconnecting-websocket')
 const EventEmitter = require('events')
 const parse = require('irc-message').parse
 const ora = require('ora')
@@ -7,7 +8,10 @@ const chalk = require('chalk')
 class Poorchat extends EventEmitter {
     constructor(options) {
         super()
-        this.ws = new WebSocket(options.websocket, 'base64')
+        // this.ws = new WebSocket(options.websocket, 'base64')
+        this.ws = new ReconnectingWebSocket(options.websocket, ['base64'], {
+                WebSocket: WebSocket
+            })
         this.login = options.login
         this.password = options.password
         this.cap = options.cap
@@ -46,8 +50,8 @@ class Poorchat extends EventEmitter {
                 color: 'yellow',
                 spinner: 'line'
             })
-            this.ws.on('open', () => {
-                spinner.start()
+            spinner.start()
+            this.ws.addEventListener('open', () => {
                 this.sendMessage(`NICK ${this.login}`)
                 this.sendMessage(`USER ${this.login} ${this.options.irc} Poorchat ${this.login}`)
                 for (const cap of this.cap) {
@@ -55,7 +59,7 @@ class Poorchat extends EventEmitter {
                 }
                 this.sendMessage('CAP END')
             })
-            this.ws.on('message', (data) => {
+            this.ws.addEventListener('message', ({ data }) => {
                 const message = this.readMessage(data)
 
                 if (message.command === '422') {

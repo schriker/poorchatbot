@@ -1,5 +1,6 @@
 const Poorchat = require('./poorchat')
 const WebSocket = require('ws')
+const ReconnectingWebSocket= require('reconnecting-websocket')
 const ora = require('ora')
 const chalk = require('chalk')
 const Message = require('./models/message')
@@ -28,10 +29,12 @@ const bot = async () => {
     const client = new Poorchat(options)
     await client.connect()
 
-    const notifier = new WebSocket('https://api.pancernik.info/notifier')
-    
-    notifier.on('message', (data) => {
-        const message = JSON.parse(data)
+    const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
+        WebSocket: WebSocket
+    })
+    spinner.start()    
+    notifier.addEventListener('message', (data) => {
+        const message = JSON.parse(data.data)
 
         if (message.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
