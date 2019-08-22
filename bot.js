@@ -35,12 +35,13 @@ const bot = async () => {
     spinner.start()    
     notifier.addEventListener('message', (data) => {
         const message = JSON.parse(data.data)
-
         if (message.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
             notifier.send(pong)
-        } else if (message.type === 'update' && message.data.stream.viewers > 0 && message.data.stream !== undefined) {
-            return
+        } else if (message.type === 'update' && message.data.stream !== undefined) { 
+            if (message.data.stream.viewers > 0 ) {
+                return
+            }
         } else if ((message.type === 'status' || message.type === 'update') && message.data.stream !== undefined) {
             if (message.data.stream.status) {
                 console.log(`${chalk.bgCyan.black('Stream:')}${chalk.bgGreen.black('[online]')}`)
@@ -84,7 +85,6 @@ const bot = async () => {
         } catch (error) {
             console.log(error)
         }
-        console.log('\n', messageData)
     }
     
     client.on('join', (message) => {
