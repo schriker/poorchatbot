@@ -3,6 +3,7 @@ const WebSocket = require('ws')
 const ReconnectingWebSocket = require('reconnecting-websocket')
 const Message = require('./models/message')
 const config = require('./config.json')
+const merge = require('lodash.merge')
 
 const bot = async () => {
     let message = {}
@@ -31,12 +32,7 @@ const bot = async () => {
     console.log('Working...')    
     notifier.addEventListener('message', (response) => {
         const data = JSON.parse(response.data)
-        message = {
-            ...message,
-            ...data
-        }
-        console.log(message)
-        console.log(currentStatus, message.data.stream.status)
+        message = merge(message, data)
         if (message.data.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
             notifier.send(pong)
