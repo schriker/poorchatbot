@@ -1,12 +1,12 @@
 const Poorchat = require('./poorchat')
 const WebSocket = require('ws')
-const ReconnectingWebSocket= require('reconnecting-websocket')
-const ora = require('ora')
-const chalk = require('chalk')
+const ReconnectingWebSocket = require('reconnecting-websocket')
 const Message = require('./models/message')
 const config = require('./config.json')
 
 const bot = async () => {
+    let message = {}
+    let currentStatus = null
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
@@ -21,40 +21,38 @@ const bot = async () => {
         ],
         debug: false
     }
-    const spinner = ora({
-        prefixText: `${chalk.bgYellow.black('[Listening]')}`,
-        color: 'yellow',
-        spinner: 'line'
-    })
+
     const client = new Poorchat(options)
     await client.connect()
 
     const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
         WebSocket: WebSocket
     })
-    spinner.start()    
-    notifier.addEventListener('message', (data) => {
-        const message = JSON.parse(data.data)
-        if (message.type === 'ping') {
+    console.log('Working...')    
+    notifier.addEventListener('message', (response) => {
+        const data = JSON.parse(response.data)
+        message = {
+            ...message,
+            ...data
+        }
+        console.log(message)
+        console.log(currentStatus, message.data.stream.status)
+        if (message.data.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
             notifier.send(pong)
-        } else if (message.type === 'update' && message.data.stream !== undefined) { 
-            if (message.data.stream.viewers > 0 ) {
-                return
-            }
-        } else if ((message.type === 'status' || message.type === 'update') && message.data.stream !== undefined) {
-            if (message.data.stream.status) {
-                console.log(`${chalk.bgCyan.black('Stream:')}${chalk.bgGreen.black('[online]')}`)
+            return
+        } 
+        if (currentStatus !== message.data.stream.status) {
+            currentStatus = data.data.stream.status
+            if (currentStatus) {
+                console.log('Stream: [Online]')
                 client.say('Dafuq')
                 client.on('message', messageHandler)
-                spinner.start()
-            } else if (!message.data.stream.status) {
-                console.log(`${chalk.bgCyan.black('Stream:')}${chalk.bgRed.black('[offline]')}`)
+            } else if (!currentStatus) {
+                console.log('Stream [Offline]')
                 client.say('PepeHands')
                 client.off('message', messageHandler)
-                spinner.stop()
             }
-
         }
     })
 

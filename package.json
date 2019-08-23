@@ -14,11 +14,9 @@
     "nodemon": "^1.19.1"
   },
   "dependencies": {
-    "chalk": "^2.4.2",
     "irc-message": "^3.0.2",
     "mongoose": "^5.6.9",
     "open-graph-scraper": "^3.6.2",
-    "ora": "^3.4.0",
     "reconnecting-websocket": "^4.1.10",
     "ws": "^7.1.2"
   }

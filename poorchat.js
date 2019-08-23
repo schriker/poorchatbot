@@ -2,13 +2,10 @@ const WebSocket = require('ws')
 const ReconnectingWebSocket= require('reconnecting-websocket')
 const EventEmitter = require('events')
 const parse = require('irc-message').parse
-const ora = require('ora')
-const chalk = require('chalk')
 
 class Poorchat extends EventEmitter {
     constructor(options) {
         super()
-        // this.ws = new WebSocket(options.websocket, 'base64')
         this.ws = new ReconnectingWebSocket(options.websocket, ['base64'], {
                 WebSocket: WebSocket
             })
@@ -45,12 +42,7 @@ class Poorchat extends EventEmitter {
 
     connect() {
         return new Promise((resolve) => {
-            const spinner = ora({
-                prefixText: `${chalk.bgYellow.black('[IRC Connecting]')}`,
-                color: 'yellow',
-                spinner: 'line'
-            })
-            spinner.start()
+            console.log('Connecting to IRC...')
             this.ws.addEventListener('open', () => {
                 this.sendMessage(`NICK ${this.login}`)
                 this.sendMessage(`USER ${this.login} ${this.options.irc} Poorchat ${this.login}`)
@@ -68,7 +60,7 @@ class Poorchat extends EventEmitter {
                 }
     
                 if (message.command === 'JOIN' && message.prefix.split('!')[0] === this.login) {
-                    spinner.succeed(`${chalk.bgGreen.black('[Connected]\n')}`)
+                    console.log('IRC Conntected!')
                     resolve()
                 }
 
