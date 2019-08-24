@@ -2,9 +2,7 @@ const mongoose = require('mongoose')
 const bot = require('./bot')
 const config = require('./config.json')
 
-const mongoHost = process.env.NODE_ENV === 'development' 
-  ? `mongodb+srv://${config.DB_USERNAME}:${config.DB_PASS}@cluster0-vsmqj.mongodb.net/${config.DB_NAME}?retryWrites=true` 
-  : `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@127.0.0.1:27017/${config.DB_NAME}`
+const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@3.121.239.54/${config.DB_NAME}`
 
 console.log('Contecting to DB...')
 mongoose.connect(mongoHost, {

@@ -8,6 +8,7 @@ const merge = require('lodash.merge')
 const bot = async () => {
     let message = {}
     let currentStatus = null
+    
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
@@ -69,7 +70,7 @@ const bot = async () => {
         const messageData = {
             author: IRCMessage.prefix.split('!')[0],
             body: messageBody,
-            color: IRCMessage.tags['poorchat.net/color'] || '#8000FF',
+            color: IRCMessage.tags['poorchat.net/color'] || '',
             subscription: subscription,
             subscriptiongifter: subscriptiongifter
         }
