@@ -40,14 +40,16 @@ const bot = async () => {
             return
         } 
         if (currentStatus !== message.data.stream.status) {
+            const date = new Date()
             currentStatus = data.data.stream.status
             if (currentStatus) {
-                console.log('Stream: [Online]')
-               // client.say('Dafuq')
+                console.log(date)
+                console.log(`Stream: [Online] - ${date}`)
+                // client.say('Dafuq')
                 client.on('message', messageHandler)
             } else if (!currentStatus) {
-                console.log('Stream [Offline]')
-               // client.say('PepeHands')
+                console.log(`Stream: [Offline] - ${date}`)
+                // client.say('PepeHands')
                 client.off('message', messageHandler)
             }
         }
@@ -81,13 +83,13 @@ const bot = async () => {
             console.log(error)
         }
     }
-    
-    client.on('join', (message) => {
-        const user = message.prefix.split('!')[0]
-        if (user === 'Wonziu' || user === 'dzej') {
-          //  client.say('monkaS')
-        }
-    })
+    // Do not won't to bother admin...
+    // client.on('join', (message) => {
+    //     const user = message.prefix.split('!')[0]
+    //     if (user === 'Wonziu' || user === 'dzej') {
+    //        client.say('monkaS')
+    //     }
+    // })
 }
 
 module.exports = bot
