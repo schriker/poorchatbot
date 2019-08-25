@@ -12,7 +12,7 @@ const messageSchema = new Schema({
     type: String,
   },
   color: {
-    required: true,
+    required: false,
     type: String
   },
   subscription: Number,

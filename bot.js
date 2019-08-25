@@ -43,11 +43,11 @@ const bot = async () => {
             currentStatus = data.data.stream.status
             if (currentStatus) {
                 console.log('Stream: [Online]')
-                client.say('Dafuq')
+               // client.say('Dafuq')
                 client.on('message', messageHandler)
             } else if (!currentStatus) {
                 console.log('Stream [Offline]')
-                client.say('PepeHands')
+               // client.say('PepeHands')
                 client.off('message', messageHandler)
             }
         }
@@ -76,7 +76,7 @@ const bot = async () => {
         }
         const message = new Message(messageData)
         try {
-            await message.save()
+            message.save()
         } catch (error) {
             console.log(error)
         }
@@ -85,7 +85,7 @@ const bot = async () => {
     client.on('join', (message) => {
         const user = message.prefix.split('!')[0]
         if (user === 'Wonziu' || user === 'dzej') {
-            client.say('monkaS')
+          //  client.say('monkaS')
         }
     })
 }
