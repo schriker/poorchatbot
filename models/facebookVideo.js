@@ -11,7 +11,11 @@ const messageSchema = new Schema({
     required: true,
     type: String
   },
-  thumbnail: String
+  thumbnail: String,
+  duration: {
+    required: true,
+    type: Number
+  }
   },
   {
     timestamps: { 
