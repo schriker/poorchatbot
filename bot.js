@@ -10,6 +10,8 @@ const puppeteer = require('puppeteer');
 const bot = async () => {
     let message = {}
     let currentStatus = null
+    let videoStartDate = null
+    let facebookVideoData = {}
     
     const options = {
         websocket: 'https://irc.poorchat.net/',
@@ -45,12 +47,14 @@ const bot = async () => {
             const date = new Date()
             currentStatus = data.data.stream.status
             if (currentStatus) {
+                videoStartDate = date
                 console.log(`Stream: [Online] - ${date}`)
                 client.on('message', messageHandler)
-                // facebookVideoScraper(message.data.topic.text)
+                facebookVideoScraper(message.data.topic.text)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
                 client.off('message', messageHandler)
+                facebookVideoSave()
             }
         }
     })
@@ -92,13 +96,26 @@ const bot = async () => {
             await page.waitForSelector('.fb-video')
             const videoUrl = await page.$eval('.fb-video', el => el.getAttribute('data-href'))
             console.log(videoUrl)
-            const facebookVideoData = {
+            facebookVideoData = {
                 url: videoUrl,
                 title: videoTitle
             }
-            const video = new FacebookVideo(facebookVideoData)
-            await video.save()
-            console.log(`Facebook Video - ${videoTitle}`)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const facebookVideoSave = async () => {
+        try {
+            if (facebookVideoData.url !== undefined) {
+                facebookVideoData = {
+                    ...facebookVideoData,
+                    duration: new Date() - videoStartDate
+                }
+                const video = new FacebookVideo(facebookVideoData)
+                await video.save()
+                console.log(`Facebook Video - ${videoTitle}`)
+            }
         } catch (error) {
             console.log(error)
         }
