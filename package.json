@@ -18,6 +18,7 @@
     "lodash.merge": "^4.6.2",
     "mongoose": "^5.6.9",
     "open-graph-scraper": "^3.6.2",
+    "puppeteer": "^1.19.0",
     "reconnecting-websocket": "^4.1.10",
     "ws": "^7.1.2"
   }

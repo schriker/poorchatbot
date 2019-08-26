@@ -2,8 +2,10 @@ const Poorchat = require('./poorchat')
 const WebSocket = require('ws')
 const ReconnectingWebSocket = require('reconnecting-websocket')
 const Message = require('./models/message')
+const FacebookVideo = require('./models/facebookVideo')
 const config = require('./config.json')
 const merge = require('lodash.merge')
+const puppeteer = require('puppeteer');
 
 const bot = async () => {
     let message = {}
@@ -43,13 +45,11 @@ const bot = async () => {
             const date = new Date()
             currentStatus = data.data.stream.status
             if (currentStatus) {
-                console.log(date)
                 console.log(`Stream: [Online] - ${date}`)
-                // client.say('Dafuq')
                 client.on('message', messageHandler)
+                // facebookVideoScraper(message.data.topic.text)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
-                // client.say('PepeHands')
                 client.off('message', messageHandler)
             }
         }
@@ -83,11 +83,31 @@ const bot = async () => {
             console.log(error)
         }
     }
-    // Do not won't to bother admin...
+
+    const facebookVideoScraper = async (videoTitle) => {
+        try {
+            const browser = await puppeteer.launch()
+            const page = await browser.newPage()
+            await page.goto('https://developers.facebook.com/docs/plugins/embedded-video-player/') // Change URL to jadisco.pl
+            await page.waitForSelector('.fb-video')
+            const videoUrl = await page.$eval('.fb-video', el => el.getAttribute('data-href'))
+            console.log(videoUrl)
+            const facebookVideoData = {
+                url: videoUrl,
+                title: videoTitle
+            }
+            const video = new FacebookVideo(facebookVideoData)
+            await video.save()
+            console.log(`Facebook Video - ${videoTitle}`)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     // client.on('join', (message) => {
     //     const user = message.prefix.split('!')[0]
-    //     if (user === 'Wonziu' || user === 'dzej') {
-    //        client.say('monkaS')
+    //     if (user === 'Wonziu') {
+    //        client.say('4Head')
     //     }
     // })
 }
