@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
 
-const messageSchema = new Schema({
+const facebookVideoSchema = new Schema({
   url: {
     required: true,
     type: String
@@ -15,7 +15,14 @@ const messageSchema = new Schema({
   duration: {
     required: true,
     type: Number
-  }
-})
+  },
+  started: Date
+  },
+  {
+    timestamps: { 
+      createdAt: true,
+      updatedAt: false
+    }
+  })
 
-  module.exports = mongoose.model('FacebookVideo', messageSchema)
+  module.exports = mongoose.model('FacebookVideo', facebookVideoSchema)
