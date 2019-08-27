@@ -16,12 +16,6 @@ const messageSchema = new Schema({
     required: true,
     type: Number
   }
-  },
-  {
-    timestamps: { 
-      createdAt: true,
-      updatedAt: false
-    }
-  })
+})
 
   module.exports = mongoose.model('FacebookVideo', messageSchema)
