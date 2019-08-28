@@ -54,7 +54,7 @@ const bot = async () => {
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
                 client.off('message', messageHandler)
-                facebookVideoSave(message.data.topic.text)
+                facebookVideoSave()
             }
         }
     })
@@ -105,7 +105,7 @@ const bot = async () => {
         }
     }
 
-    const facebookVideoSave = async (videoTitle) => {
+    const facebookVideoSave = async () => {
         try {
             if (facebookVideoData.url !== undefined) {
                 facebookVideoData = {
@@ -115,7 +115,7 @@ const bot = async () => {
                 }
                 const video = new FacebookVideo(facebookVideoData)
                 await video.save()
-                console.log(`Facebook Video - ${videoTitle}`)
+                console.log(`FB Vide Saved - ${facebookVideoData.title}`)
             }
         } catch (error) {
             console.log(error)
