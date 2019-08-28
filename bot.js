@@ -99,6 +99,7 @@ const bot = async () => {
             facebookVideoData = {
                 url: videoUrl,
                 title: videoTitle,
+                views: 0
             }
         } catch (error) {
             console.log(error)

@@ -16,6 +16,7 @@ const facebookVideoSchema = new Schema({
     required: true,
     type: Number
   },
+  views: Number,
   started: Date
   },
   {
