@@ -101,6 +101,7 @@ const bot = async () => {
                 title: videoTitle,
                 views: 0
             }
+            browser.close()
         } catch (error) {
             console.log(error)
         }
