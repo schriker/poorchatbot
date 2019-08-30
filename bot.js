@@ -97,6 +97,7 @@ const bot = async () => {
             const videoUrl = await page.$eval('.fb-video', el => el.getAttribute('data-href'))
             console.log(videoUrl)
             facebookVideoData = {
+                facebookId: videoUrl.replace('https://www.facebook.com/facebook/videos/', '').replace('/', ''), // change to jadisco
                 url: videoUrl,
                 title: videoTitle,
                 views: 0

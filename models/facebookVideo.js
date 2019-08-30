@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const facebookVideoSchema = new Schema({
+  facebookId: String,
   url: {
     required: true,
     type: String
