@@ -13,10 +13,7 @@ const facebookVideoSchema = new Schema({
     type: String
   },
   thumbnail: String,
-  duration: {
-    required: true,
-    type: Number
-  },
+  duration: String,
   views: Number,
   started: Date
   },

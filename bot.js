@@ -5,7 +5,8 @@ const Message = require('./models/message')
 const FacebookVideo = require('./models/facebookVideo')
 const config = require('./config.json')
 const merge = require('lodash.merge')
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer')
+const msToTime = require('./helpers/milisecondsToTime')
 
 const bot = async () => {
     let message = {}
@@ -35,29 +36,29 @@ const bot = async () => {
         WebSocket: WebSocket
     })
     console.log('Working...')    
-    notifier.addEventListener('message', (response) => {
-        const data = JSON.parse(response.data)
-        message = merge(message, data)
-        if (message.data.type === 'ping') {
-            const pong = JSON.stringify({ type: 'pong' })
-            notifier.send(pong)
-            return
-        } 
-        if (currentStatus !== message.data.stream.status) {
-            const date = new Date()
-            currentStatus = data.data.stream.status
-            if (currentStatus) {
-                videoStartDate = date
-                console.log(`Stream: [Online] - ${date}`)
-                client.on('message', messageHandler)
-                facebookVideoScraper(message.data.topic.text)
-            } else if (!currentStatus) {
-                console.log(`Stream: [Offline] - ${date}`)
-                client.off('message', messageHandler)
-                facebookVideoSave()
-            }
-        }
-    })
+    // notifier.addEventListener('message', (response) => {
+    //     const data = JSON.parse(response.data)
+    //     message = merge(message, data)
+    //     if (message.data.type === 'ping') {
+    //         const pong = JSON.stringify({ type: 'pong' })
+    //         notifier.send(pong)
+    //         return
+    //     } 
+    //     if (currentStatus !== message.data.stream.status) {
+    //         const date = new Date()
+    //         currentStatus = data.data.stream.status
+    //         if (currentStatus) {
+    //             videoStartDate = date
+    //             console.log(`Stream: [Online] - ${date}`)
+    //             client.on('message', messageHandler)
+    //             facebookVideoScraper(message.data.topic.text)
+    //         } else if (!currentStatus) {
+    //             console.log(`Stream: [Offline] - ${date}`)
+    //             client.off('message', messageHandler)
+    //             facebookVideoSave()
+    //         }
+    //     }
+    // })
 
     const messageHandler = async (IRCMessage) => {
         const messageBody = IRCMessage.params[1]
@@ -88,6 +89,8 @@ const bot = async () => {
         }
     }
 
+    client.on('message', messageHandler) // Remove this when they fix notifier and uncoment listener above
+
     const facebookVideoScraper = async (videoTitle) => {
         try {
             const browser = await puppeteer.launch()
@@ -113,7 +116,7 @@ const bot = async () => {
             if (facebookVideoData.url !== undefined) {
                 facebookVideoData = {
                     ...facebookVideoData,
-                    duration: new Date() - videoStartDate,
+                    duration: msToTime(new Date() - videoStartDate),
                     started: videoStartDate
                 }
                 const video = new FacebookVideo(facebookVideoData)
