@@ -5,7 +5,7 @@ const Message = require('./models/message')
 const FacebookVideo = require('./models/facebookVideo')
 const config = require('./config.json')
 const merge = require('lodash.merge')
-const puppeteer = require('puppeteer')
+const axios = require('axios')
 const msToTime = require('./helpers/milisecondsToTime')
 
 const bot = async () => {
@@ -36,29 +36,28 @@ const bot = async () => {
         WebSocket: WebSocket
     })
     console.log('Working...')    
-    // notifier.addEventListener('message', (response) => {
-    //     const data = JSON.parse(response.data)
-    //     message = merge(message, data)
-    //     if (message.data.type === 'ping') {
-    //         const pong = JSON.stringify({ type: 'pong' })
-    //         notifier.send(pong)
-    //         return
-    //     } 
-    //     if (currentStatus !== message.data.stream.status) {
-    //         const date = new Date()
-    //         currentStatus = data.data.stream.status
-    //         if (currentStatus) {
-    //             videoStartDate = date
-    //             console.log(`Stream: [Online] - ${date}`)
-    //             client.on('message', messageHandler)
-    //             facebookVideoScraper(message.data.topic.text)
-    //         } else if (!currentStatus) {
-    //             console.log(`Stream: [Offline] - ${date}`)
-    //             client.off('message', messageHandler)
-    //             facebookVideoSave()
-    //         }
-    //     }
-    // })
+    notifier.addEventListener('message', (response) => {
+        const data = JSON.parse(response.data)
+        message = merge(message, data)
+        if (message.data.type === 'ping') {
+            const pong = JSON.stringify({ type: 'pong' })
+            notifier.send(pong)
+            return
+        } 
+        if (currentStatus !== message.data.stream.status) {
+            const date = new Date()
+            currentStatus = data.data.stream.status
+            if (currentStatus) {
+                videoStartDate = date
+                console.log(`Stream: [Online] - ${date}`)
+                // client.on('message', messageHandler)
+            } else if (!currentStatus) {
+                console.log(`Stream: [Offline] - ${date}`)
+                // client.off('message', messageHandler)
+                searchFacebookVideo(message.data.topic.text)
+            }
+        }
+    })
 
     const messageHandler = async (IRCMessage) => {
         const messageBody = IRCMessage.params[1]
@@ -89,44 +88,29 @@ const bot = async () => {
         }
     }
 
-    client.on('message', messageHandler) // Remove this when they fix notifier and uncoment listener above
-
-    const facebookVideoScraper = async (videoTitle) => {
+    const searchFacebookVideo = async (videoTitle) => {
         try {
-            const browser = await puppeteer.launch()
-            const page = await browser.newPage()
-            await page.goto('https://developers.facebook.com/docs/plugins/embedded-video-player/') // Change URL to jadisco.pl
-            await page.waitForSelector('.fb-video')
-            const videoUrl = await page.$eval('.fb-video', el => el.getAttribute('data-href'))
-            console.log(videoUrl)
+            const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
+            const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
             facebookVideoData = {
-                facebookId: videoUrl.replace('https://www.facebook.com/facebook/videos/', '').replace('/', ''), // change to jadisco
-                url: videoUrl,
-                title: videoTitle,
-                views: 0
+                facebookId: videoData.videoID,
+                url: videoData.videoURL,
+                title: videoData.title || videoTitle,
+                views: 0,
+                duration: videoData.duration || msToTime(new Date() - videoStartDate),
+                started: videoStartDate,
+                thumbnail: videoData.thumbnailURI
             }
-            browser.close()
+            const video = new FacebookVideo(facebookVideoData)
+            await video.save()
+            console.log(`FB Vide Saved - ${facebookVideoData.title}`)
         } catch (error) {
             console.log(error)
         }
     }
 
-    const facebookVideoSave = async () => {
-        try {
-            if (facebookVideoData.url !== undefined) {
-                facebookVideoData = {
-                    ...facebookVideoData,
-                    duration: msToTime(new Date() - videoStartDate),
-                    started: videoStartDate
-                }
-                const video = new FacebookVideo(facebookVideoData)
-                await video.save()
-                console.log(`FB Vide Saved - ${facebookVideoData.title}`)
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    client.on('message', messageHandler)
+
 
     // client.on('join', (message) => {
     //     const user = message.prefix.split('!')[0]

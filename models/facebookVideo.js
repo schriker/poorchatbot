@@ -4,18 +4,13 @@ const Schema = mongoose.Schema
 
 const facebookVideoSchema = new Schema({
   facebookId: String,
-  url: {
-    required: true,
-    type: String
-    },
-  title: {
-    required: true,
-    type: String
-  },
+  url: String,
+  title: String,
   thumbnail: String,
   duration: String,
   views: Number,
-  started: Date
+  started: Date,
+  public: Boolean,
   },
   {
     timestamps: { 
