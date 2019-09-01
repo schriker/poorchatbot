@@ -89,23 +89,26 @@ const bot = async () => {
     }
 
     const searchFacebookVideo = async (videoTitle) => {
-        try {
-            const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
-            const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
-            facebookVideoData = {
-                facebookId: videoData.videoID,
-                url: videoData.videoURL,
-                title: videoData.title || videoTitle,
-                views: 0,
-                duration: videoData.duration || msToTime(new Date() - videoStartDate),
-                started: videoStartDate,
-                thumbnail: videoData.thumbnailURI
+        if (videoStartDate) {
+            try {
+                const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
+                const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
+                facebookVideoData = {
+                    facebookId: videoData.videoID,
+                    url: videoData.videoURL,
+                    title: videoData.title || videoTitle,
+                    views: 0,
+                    duration: videoData.duration || msToTime(new Date() - videoStartDate),
+                    started: videoStartDate,
+                    thumbnail: videoData.thumbnailURI,
+                    public: false
+                }
+                const video = new FacebookVideo(facebookVideoData)
+                await video.save()
+                console.log(`FB Vide Saved - ${facebookVideoData.title}`)
+            } catch (error) {
+                console.log(error)
             }
-            const video = new FacebookVideo(facebookVideoData)
-            await video.save()
-            console.log(`FB Vide Saved - ${facebookVideoData.title}`)
-        } catch (error) {
-            console.log(error)
         }
     }
 
