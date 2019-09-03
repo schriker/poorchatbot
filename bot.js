@@ -105,7 +105,7 @@ const bot = async () => {
                     duration: videoData.duration || msToTime(new Date() - videoStartDate),
                     started: videoStartDate,
                     thumbnail: videoData.thumbnailURI,
-                    public: false
+                    public: true
                 }
                 const video = new FacebookVideo(facebookVideoData)
                 await video.save()
