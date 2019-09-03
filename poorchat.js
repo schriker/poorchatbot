@@ -86,6 +86,12 @@ class Poorchat extends EventEmitter {
             case 'PART':
                 this.emit('part', message)
                 break
+            case 'EMBED':
+                this.emit('message', message)
+                break
+            case 'NOTICE':
+                this.emit('message', message)
+                break
             default: 
                 if (this.debug) {
                     console.log(message)

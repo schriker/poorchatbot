@@ -21,6 +21,7 @@ const bot = async () => {
         login: config.USER_LOGIN,
         password: config.USER_PASSWORD,
         cap: [
+            'CAP REQ :poorchat.net/embed',
             'CAP REQ :poorchat.net/color',
             'CAP REQ :poorchat.net/subscription',
             'CAP REQ :poorchat.net/subscriptiongifter',
@@ -50,20 +51,21 @@ const bot = async () => {
             if (currentStatus) {
                 videoStartDate = date
                 console.log(`Stream: [Online] - ${date}`)
-                // client.on('message', messageHandler)
+                client.on('message', messageHandler)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
-                // client.off('message', messageHandler)
-                searchFacebookVideo(message.data.topic.text)
+                client.off('message', messageHandler)
+                setTimeout(() => searchFacebookVideo(message.data.topic.text), 300000)
             }
         }
     })
 
     const messageHandler = async (IRCMessage) => {
         const messageBody = IRCMessage.params[1]
-        
         let subscription = 0
         let subscriptiongifter = 0
+
+        const author = IRCMessage.command === 'PRIVMSG' ? IRCMessage.prefix.split('!')[0] : 'irc.poorchat.net'
         
         if (IRCMessage.tags['poorchat.net/subscription']) {
             subscription = JSON.parse(IRCMessage.tags['poorchat.net/subscription'].replace('\\s', ' ')).months
@@ -74,12 +76,14 @@ const bot = async () => {
         }
 
         const messageData = {
-            author: IRCMessage.prefix.split('!')[0],
+            type: IRCMessage.command,
+            author: author,
             body: messageBody,
             color: IRCMessage.tags['poorchat.net/color'] || '',
             subscription: subscription,
             subscriptiongifter: subscriptiongifter
         }
+
         const message = new Message(messageData)
         try {
             message.save()
@@ -111,10 +115,7 @@ const bot = async () => {
             }
         }
     }
-
-    client.on('message', messageHandler)
-
-
+    
     // client.on('join', (message) => {
     //     const user = message.prefix.split('!')[0]
     //     if (user === 'Wonziu') {
