@@ -55,7 +55,8 @@ const bot = async () => {
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
                 client.off('message', messageHandler)
-                setTimeout(() => searchFacebookVideo(message.data.topic.text), 300000)
+                searchFacebookVideo(message.data.topic.text)
+                setTimeout(() => , 300000)
             }
         }
     })
@@ -102,7 +103,7 @@ const bot = async () => {
                     url: videoData.videoURL,
                     title: videoData.title || videoTitle,
                     views: 0,
-                    duration: videoData.duration || msToTime(new Date() - videoStartDate),
+                    duration: msToTime(new Date() - videoStartDate),
                     started: videoStartDate,
                     thumbnail: videoData.thumbnailURI,
                     public: true
