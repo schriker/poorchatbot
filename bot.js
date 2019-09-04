@@ -56,7 +56,6 @@ const bot = async () => {
                 console.log(`Stream: [Offline] - ${date}`)
                 client.off('message', messageHandler)
                 searchFacebookVideo(message.data.topic.text)
-                setTimeout(() => , 300000)
             }
         }
     })
