@@ -50,11 +50,15 @@ class Wykop {
       }
       this.makeRequest(request)
         .then((res) => {
-          if (apiParams[0] === 'login') {
+          if (res.data.data === null) {
+            reject(res)
+          } else if (apiParams[0] === 'login') {
             this.userKey = res.data.data.userkey
             console.log(`${res.data.data.profile.login} logedin!`)
+            resolve(res.data)
+          } else {
+            resolve(res.data)
           }
-          resolve(res.data)
         })
         .catch((err) => reject(err))
     })
