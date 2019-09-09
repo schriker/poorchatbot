@@ -6,9 +6,9 @@ const ReconnectingWebSocket = require('reconnecting-websocket')
 const axios = require('axios')
 
 const wykopNotifier = async () => {
-  const lt = new Date(new Date().setUTCHours(0, 0, 0, 0))
-  const gt = new Date(new Date(new Date().setUTCHours(0, 0, 0, 0)).getTime() - 24 * 60 * 60 * 1000)
-  const postDate = gt.toISOString().split('T')[0]
+  const lt = new Date(new Date().setUTCHours(22, 0, 0, 0))
+  const gt = new Date(new Date(new Date().setUTCHours(22, 0, 0, 0)).getTime() - 24 * 60 * 60 * 1000)
+  const postDate = lt.toISOString().split('T')[0]
   const videosFromLast24H = await FacebookVideo.find({started: {$gt: gt, $lt: lt}})
   let postBodyTemplate = `
   **Archiwum z Ruczaju**
