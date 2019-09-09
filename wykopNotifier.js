@@ -8,8 +8,10 @@ const axios = require('axios')
 const wykopNotifier = async () => {
   const lt = new Date(new Date().setHours(0, 0, 0, 0))
   const gt = new Date(new Date(new Date().setHours(0, 0, 0, 0)).getTime() - 24 * 60 * 60 * 1000)
+  console.log(lt)
   const postDate = lt.toISOString().split('T')[0]
   const videosFromLast24H = await FacebookVideo.find({started: {$gt: gt, $lt: lt}})
+  console.log(postDate)
   let postBodyTemplate = `
   **Archiwum z Ruczaju**
 
@@ -45,27 +47,27 @@ const wykopNotifier = async () => {
         secret: config.WYKOP.SECRET,
         appKey: config.WYKOP.APPKEY
       })
-      await wykopNotifier.request({
-        requestMethod: 'POST',
-        apiParams: ['login', 'index'],
-        namedParams: null,
-        postParams: {
-          accountkey: config.WYKOP.ACCOUNTKEY
-        }
-      })
-      wykopNotifier.request({
-        requestMethod: 'POST',
-        apiParams: ['entries', 'add'],
-        namedParams: null,
-        postParams: {
-          body: postBodyTemplate,
-          embed: videoData.thumbnailURI
-        }
-      })
-      .then(() => {
-        console.log('Wykop post posted!')
-        notifier.removeEventListener('message')
-      }) 
+      // await wykopNotifier.request({
+      //   requestMethod: 'POST',
+      //   apiParams: ['login', 'index'],
+      //   namedParams: null,
+      //   postParams: {
+      //     accountkey: config.WYKOP.ACCOUNTKEY
+      //   }
+      // })
+      // wykopNotifier.request({
+      //   requestMethod: 'POST',
+      //   apiParams: ['entries', 'add'],
+      //   namedParams: null,
+      //   postParams: {
+      //     body: postBodyTemplate,
+      //     embed: videoData.thumbnailURI
+      //   }
+      // })
+      // .then(() => {
+      //   console.log('Wykop post posted!')
+      //   notifier.removeEventListener('message')
+      // }) 
     })
   }
 }
