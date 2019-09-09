@@ -14,6 +14,7 @@ mongoose.connect(mongoHost, {
   .then(async () => {
     console.log('DB connected!')
     bot()
+    wykopNotifier()
     // try {      
     //   new CronJob('00 00 06 * * *', () => {
     //     wykopNotifier()
