@@ -14,14 +14,13 @@ mongoose.connect(mongoHost, {
   .then(async () => {
     console.log('DB connected!')
     bot()
-    wykopNotifier()
-    // try {      
-    //   new CronJob('00 00 06 * * *', () => {
-    //     wykopNotifier()
-    //   }, null, true)
-    // } catch (cronerr) {
-    //   console.log('Invalid cron')
-    // }
+    try {      
+      new CronJob('00 00 04 * * *', () => {
+        wykopNotifier()
+      }, null, true)
+    } catch (cronerr) {
+      console.log('Invalid cron')
+    }
   })
   .catch(err => {
     console.log(err)
