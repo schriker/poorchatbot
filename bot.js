@@ -41,7 +41,6 @@ const bot = async () => {
     notifier.addEventListener('message', (response) => {
         const data = JSON.parse(response.data)
         message = merge(message, data)
-        console.log(message.data.stream.services.filter(service => service.name === 'facebook')[0].status)
         if (message.data.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
             notifier.send(pong)
