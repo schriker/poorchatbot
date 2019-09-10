@@ -10,7 +10,7 @@ const msToTime = require('./helpers/milisecondsToTime')
 
 const bot = async () => {
     let message = {}
-    let isDzej = false
+    let isFacebook = false
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
@@ -41,6 +41,7 @@ const bot = async () => {
     notifier.addEventListener('message', (response) => {
         const data = JSON.parse(response.data)
         message = merge(message, data)
+        console.log(message.data.stream.services.filter(service => service.name === 'facebook')[0].status)
         if (message.data.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
             notifier.send(pong)
@@ -51,7 +52,7 @@ const bot = async () => {
             currentStatus = data.data.stream.status
             if (currentStatus) {
                 videoStartDate = date
-                isDzej = message.data.stream.services.filter(service => service.streamer_id === 2)[0].status
+                isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 console.log(`Stream: [Online] - ${date}`)
                 client.on('message', messageHandler)
             } else if (!currentStatus) {
@@ -95,7 +96,7 @@ const bot = async () => {
     }
 
     const searchFacebookVideo = async (videoTitle) => {
-        if (videoStartDate && !isDzej) {
+        if (videoStartDate && isFacebook) {
             try {
                 const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
                 const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
@@ -112,11 +113,10 @@ const bot = async () => {
                 const video = new FacebookVideo(facebookVideoData)
                 await video.save()
                 console.log(`FB Vide Saved - ${facebookVideoData.title}`)
+                isFacebook = false
             } catch (error) {
                 console.log(error)
             }
-        } else {
-            isDzej = false
         }
     }
     
