@@ -46,9 +46,12 @@ const bot = async () => {
             notifier.send(pong)
             return
         } 
-        if (currentStatus !== message.data.stream.status) {
+
+        const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
+
+        if (currentStatus !== newMessageStatus) {
             const date = new Date()
-            currentStatus = data.data.stream.status
+            currentStatus = newMessageStatus
             if (currentStatus) {
                 videoStartDate = date
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
