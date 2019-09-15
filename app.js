@@ -16,7 +16,7 @@ mongoose.connect(mongoHost, {
     bot()
     try {      
       new CronJob('00 00 04 * * *', () => {
-        wykopNotifier()
+      	wykopNotifier()
       }, null, true)
     } catch (cronerr) {
       console.log('Invalid cron')
