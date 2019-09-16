@@ -11,6 +11,7 @@ const msToTime = require('./helpers/milisecondsToTime')
 const bot = async () => {
     let message = {}
     let isFacebook = false
+    let isTwitch = false
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
@@ -47,6 +48,8 @@ const bot = async () => {
             return
         } 
 
+        console.log(message.data.stream.services)
+
         const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
 
         if (currentStatus !== newMessageStatus) {
@@ -55,6 +58,7 @@ const bot = async () => {
             if (currentStatus) {
                 videoStartDate = date
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
+                isTwitch = message.data.stream.services.filter(service => service.name === 'twitch')[0].status
                 console.log(`Stream: [Online] - ${date}`)
                 client.on('message', messageHandler)
             } else if (!currentStatus) {
@@ -122,13 +126,6 @@ const bot = async () => {
             }
         }
     }
-    
-    // client.on('join', (message) => {
-    //     const user = message.prefix.split('!')[0]
-    //     if (user === 'Wonziu') {
-    //        client.say('4Head')
-    //     }
-    // })
 }
 
 module.exports = bot
