@@ -115,7 +115,7 @@ const bot = async () => {
                 const video = new FacebookVideo(facebookVideoData)
                 await video.save()
                 console.log(`FB Vide Saved - ${facebookVideoData.title}`)
-                client.say(`https://jarchiwum.pl/wonziu/${videoData.videoID}?platform=facebook`)
+		//setTimeout(() => client.say(`https://jarchiwum.pl/wonziu/${videoData.videoID}?platform=facebook`), 300000)
                 isFacebook = false
             } catch (error) {
                 console.log(error)
