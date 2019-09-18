@@ -9,7 +9,8 @@ const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@3.121.239.5
 console.log('Contecting to DB...')
 mongoose.connect(mongoHost, {
   useNewUrlParser: true,
-  useFindAndModify: false
+  useFindAndModify: false,
+  useUnifiedTopology: true
   })
   .then(async () => {
     console.log('DB connected!')

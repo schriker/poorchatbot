@@ -20,8 +20,8 @@
     "lodash.merge": "^4.6.2",
     "md5": "^2.2.1",
     "mongoose": "^5.7.1",
-    "open-graph-scraper": "^3.6.2",
     "reconnecting-websocket": "^4.2.0",
+    "saslprep": "^1.0.3",
     "ws": "^7.1.2"
   }
 }

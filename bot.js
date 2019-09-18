@@ -11,7 +11,7 @@ const msToTime = require('./helpers/milisecondsToTime')
 const bot = async () => {
     let message = {}
     let isFacebook = false
-    let isTwitch = false
+    let isNvidia = false
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
@@ -48,8 +48,6 @@ const bot = async () => {
             return
         } 
 
-        console.log(message.data.stream.services)
-
         const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
 
         if (currentStatus !== newMessageStatus) {
@@ -58,7 +56,9 @@ const bot = async () => {
             if (currentStatus) {
                 videoStartDate = date
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
-                isTwitch = message.data.stream.services.filter(service => service.name === 'twitch')[0].status
+                if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
+                    isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
+                }
                 console.log(`Stream: [Online] - ${date}`)
                 client.on('message', messageHandler)
             } else if (!currentStatus) {
@@ -102,6 +102,33 @@ const bot = async () => {
     }
 
     const searchFacebookVideo = async (videoTitle) => {
+        if (videoStartDate && isNvidia) {
+            try {
+                const response = await axios.get('https://api.twitch.tv/helix/videos?user_id=93141680', {
+                headers: {
+                    'Client-ID': 'w87bqmg0y9ckftb2aii2tdielbr1rx'
+                    }
+                })
+                const video = response.data.data[0]
+
+                facebookVideoData = {
+                    facebookId: video.id,
+                    url: video.url,
+                    title: video.title,
+                    views: video.view_count,
+                    duration: video.duration,
+                    started: videoStartDate,
+                    thumbnail: video.thumbnail_url,
+                    public: false
+                }
+                const videoTwitch = new FacebookVideo(facebookVideoData)
+                await videoTwitch.save()
+                console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
+                isNvidia = false
+            } catch (err) {
+                console.log(err)
+            }
+        }
         if (videoStartDate && isFacebook) {
             try {
                 const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
@@ -119,7 +146,6 @@ const bot = async () => {
                 const video = new FacebookVideo(facebookVideoData)
                 await video.save()
                 console.log(`FB Vide Saved - ${facebookVideoData.title}`)
-		//setTimeout(() => client.say(`https://jarchiwum.pl/wonziu/${videoData.videoID}?platform=facebook`), 300000)
                 isFacebook = false
             } catch (error) {
                 console.log(error)
