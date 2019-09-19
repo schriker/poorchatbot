@@ -89,9 +89,6 @@ class Poorchat extends EventEmitter {
             case 'EMBED':
                 this.emit('message', message)
                 break
-            case 'MODE': 
-                this.emit('mode', message)
-                break
             case 'NOTICE':
                 this.emit('message', message)
                 break
