@@ -40,7 +40,7 @@ const wykopNotifier = async () => {
       \nWpadnij na czat! https://jadisco.pl/
       Przegapiłeś strumyk? https://jarchiwum.pl/
       
-      \n#archiwumzruczaju #wonziu
+      \n#wonziu #archiwumzruczaju
       `
 
       const facebookData = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
