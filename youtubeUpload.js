@@ -42,8 +42,8 @@ const youtubeUpload = (fileName, facebookVideo) => {
         notifySubscribers: false,
         requestBody: {
           snippet: {
-            title: `Zapis strumienia z: ${facebookVideo.started}`,
-            description: `${facebookVideo.title}: ${facebookVideo.facebookId}`
+            title: `Zapis strumienia: ${facebookVideo.started}`,
+            description: `${facebookVideo.title} ${facebookVideo.facebookId}`
           },
           status: {
             privacyStatus: 'unlisted'
