@@ -4,7 +4,7 @@ const bot = require('./bot')
 const wykopNotifier = require('./wykopNotifier')
 const CronJob = require('cron').CronJob
 
-const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@3.121.239.54/${config.DB_NAME}`
+const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
 
 console.log('Contecting to DB...')
 mongoose.connect(mongoHost, {
@@ -15,13 +15,14 @@ mongoose.connect(mongoHost, {
   .then(async () => {
     console.log('DB connected!')
     bot()
-    try {      
-      new CronJob('00 00 04 * * *', () => {
-      	wykopNotifier()
-      }, null, true)
-    } catch (cronerr) {
-      console.log('Invalid cron')
-    }
+    // Uncoment after megrged to master
+    // try {      
+    //   new CronJob('00 00 04 * * *', () => {
+    //   	wykopNotifier()
+    //   }, null, true)
+    // } catch (cronerr) {
+    //   console.log('Invalid cron')
+    // }
   })
   .catch(err => {
     console.log(err)

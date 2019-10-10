@@ -4,6 +4,7 @@ const Schema = mongoose.Schema
 
 const facebookVideoSchema = new Schema({
   facebookId: String,
+  youTubeId: String,
   url: String,
   title: String,
   thumbnail: String,

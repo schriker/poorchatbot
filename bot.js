@@ -7,6 +7,7 @@ const config = require('./config.json')
 const merge = require('lodash.merge')
 const axios = require('axios')
 const msToTime = require('./helpers/milisecondsToTime')
+const facebookVideoDownloader = require('./facebookVideoDownloader')
 
 const bot = async () => {
     let message = {}
@@ -122,8 +123,9 @@ const bot = async () => {
                     public: false
                 }
                 const videoTwitch = new FacebookVideo(facebookVideoData)
-                await videoTwitch.save()
+                const savedVideo = await videoTwitch.save()
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
+                setTimeout(() => facebookVideoDownloader(savedVideo), 900000)
                 isNvidia = false
             } catch (err) {
                 console.log(err)
@@ -144,8 +146,9 @@ const bot = async () => {
                     public: true
                 }
                 const video = new FacebookVideo(facebookVideoData)
-                await video.save()
+                const savedVideo = await video.save()
                 console.log(`FB Vide Saved - ${facebookVideoData.title}`)
+                setTimeout(() => facebookVideoDownloader(savedVideo), 900000)
                 isFacebook = false
             } catch (error) {
                 console.log(error)
