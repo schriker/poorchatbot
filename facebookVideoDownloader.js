@@ -8,7 +8,7 @@ const facebookVideoDownloader = (video) => {
     if (video.public === true) {
       comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" -o "video.%(ext)s"`
     } else if (video.public === false) {
-      comand = `youtube-dl ${video.url} -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" -o "video.%(ext)s"`
+      comand = `youtube-dl ${video.url} -f "best[ext=mp4]" -o "video.%(ext)s"`
     }
     exec(comand, 
     async (error, stdout, stderr) => {
