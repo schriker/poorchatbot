@@ -23,7 +23,24 @@ const getAccessToken = () => {
   })
 }
 
-const videoDesc = `Całe archiwum strumieni: https://www.youtube.com/playlist?list=PLWbAUhvm4h-Mz9YKtMZQX2xAR_dzlklUv
+const youtubeUpload = (fileName, facebookVideo) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const oAuthClient = new google.auth.OAuth2(
+        config.YT_API.CLIENT_ID,
+        config.YT_API.CLIENT_SECRET,
+        'https://developers.google.com/oauthplayground'
+      )
+      oAuthClient.credentials= await getAccessToken()
+  
+      const youtube = google.youtube({
+        version: 'v3',
+        auth: oAuthClient
+      })
+
+      const startDate = moment(facebookVideo.started).add(2, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
+
+      const videoDesc = `Całe archiwum strumieni: https://www.youtube.com/playlist?list=PLWbAUhvm4h-Mz9YKtMZQX2xAR_dzlklUv
 oraz na stronie https://jarchiwum.pl
 
 https://www.twitch.tv/mujstach - tu znajdziecie MujStacha
@@ -42,32 +59,17 @@ Współpracują z nami twórcy muzyki:
 https://soundcloud.com/atian
 https://www.grindpeace.com/
 
+${facebookVideo.url}
+
 Pozdrawiam,
 m.`
-
-const youtubeUpload = (fileName, facebookVideo) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const oAuthClient = new google.auth.OAuth2(
-        config.YT_API.CLIENT_ID,
-        config.YT_API.CLIENT_SECRET,
-        'https://developers.google.com/oauthplayground'
-      )
-      oAuthClient.credentials= await getAccessToken()
-  
-      const youtube = google.youtube({
-        version: 'v3',
-        auth: oAuthClient
-      })
-
-      const starDate = moment(facebookVideo.started).add(2, 'hours').locale('pl').format('D MMMM YYYY (H:mm)')
   
       const video = await youtube.videos.insert({
         part: 'id,snippet,status',
         notifySubscribers: false,
         requestBody: {
           snippet: {
-            title: `Archiwum strumieni - ${starDate}`,
+            title: `Archiwum strumieni - ${startDate}`,
             description: videoDesc
           },
           status: {
