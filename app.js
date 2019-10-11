@@ -16,7 +16,7 @@ mongoose.connect(mongoHost, {
   .then(async () => {
     console.log('DB connected!')
     // Thu Oct 10 2019 14:16:39 GMT+0000 (Coordinated Universal Time)
-    const date = moment('2019-09-10T13:38:06.757+00:00').locale('pl').format('D MMMM YYYY (H:MM)')
+    const date = moment('2019-09-10T13:38:06.757+00:00').add(2, 'hours').locale('pl').format('D MMMM YYYY (H:MM)')
     console.log(date)
     // bot()
     try {      
