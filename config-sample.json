@@ -1,7 +1,18 @@
 {
+  "DB_HOST": "",
   "DB_NAME": "",
   "DB_USERNAME": "",
   "DB_PASS": "",
   "USER_LOGIN": "",
-  "USER_PASSWORD": ""
+  "USER_PASSWORD": "",
+  "WYKOP": {
+    "APPKEY": "",
+    "SECRET": "",
+    "ACCOUNTKEY": ""
+  },
+  "YT_API": {
+    "CLIENT_SECRET": "",
+    "CLIENT_ID": "",
+    "REFRESH_TOKEN": ""
+  } 
 }
