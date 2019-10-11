@@ -20,6 +20,7 @@
     "irc-message": "^3.0.2",
     "lodash.merge": "^4.6.2",
     "md5": "^2.2.1",
+    "moment": "^2.24.0",
     "mongoose": "^5.7.1",
     "reconnecting-websocket": "^4.2.0",
     "saslprep": "^1.0.3",

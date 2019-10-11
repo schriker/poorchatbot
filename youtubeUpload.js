@@ -22,6 +22,28 @@ const getAccessToken = () => {
   })
 }
 
+const videoDesc = `Całe archiwum strumieni: https://www.youtube.com/playlist?list=PLWbAUhvm4h-Mz9YKtMZQX2xAR_dzlklUv
+oraz na stronie https://jarchiwum.pl
+
+https://www.twitch.tv/mujstach - tu znajdziecie MujStacha
+https://twitter.com/glamh0th - tu znajdziecie Glamhotha
+https://twitter.com/dzejTH - tu znajdziecie Dżeja.
+
+Śledzić nas można:
+http://jadisco.pl - to jest małe centrum sterowania światem.
+https://www.facebook.com/StrumienieZRuczaju -  obecnie z tego miejsca nadlatują strimy i prowadzone są tam typowo socjalkowe akcji (wpisy, płatne wpisy itd.)
+suchykanal@gmail.com - kontakt
+http://steamcommunity.com/groups/Szpara - grupa steamowa, też ma powiadomienia
+https://twitter.com/wonziu - to mój intymny twitter
+https://twitter.com/ruczajircpower - a to twitter, który informuje o tym kiedy i co dzieje się na strumieniu. Realnie to najlepiej działający powiadamiacz.
+
+Współpracują z nami twórcy muzyki:
+https://soundcloud.com/atian
+https://www.grindpeace.com/
+
+Pozdrawiam,
+m.`
+
 const youtubeUpload = (fileName, facebookVideo) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -42,8 +64,8 @@ const youtubeUpload = (fileName, facebookVideo) => {
         notifySubscribers: false,
         requestBody: {
           snippet: {
-            title: `Zapis strumienia: ${facebookVideo.started}`,
-            description: `${facebookVideo.title} ${facebookVideo.facebookId}`
+            title: `Archiwum strumieni - ${facebookVideo.started}`,
+            description: videoDesc
           },
           status: {
             privacyStatus: 'unlisted'
