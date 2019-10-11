@@ -1,7 +1,8 @@
 const axios = require('axios')
 const config = require('./config.json')
 const fs = require('fs')
-const { google } = require('googleapis') 
+const { google } = require('googleapis')
+const moment = require('moment')
 
 const getAccessToken = () => {
   return new Promise( async (resolve, reject) => {
@@ -58,13 +59,15 @@ const youtubeUpload = (fileName, facebookVideo) => {
         version: 'v3',
         auth: oAuthClient
       })
+
+      const starDate = moment(facebookVideo.started).add(2, 'hours').locale('pl').format('D MMMM YYYY (H:mm)')
   
       const video = await youtube.videos.insert({
         part: 'id,snippet,status',
         notifySubscribers: false,
         requestBody: {
           snippet: {
-            title: `Archiwum strumieni - ${facebookVideo.started}`,
+            title: `Archiwum strumieni - ${starDate}`,
             description: videoDesc
           },
           status: {
