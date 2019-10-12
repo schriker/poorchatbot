@@ -20,6 +20,7 @@ const facebookVideoDownloader = (video) => {
       fs.unlinkSync('video.mp4')
       const videoInDatabase = await FacebookVideo.findById(video._id)
       videoInDatabase.youTubeId = youTubeVideo.data.id
+      videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.medium.url
       videoInDatabase.save()
       console.log('Video reuploaded!')
     })
