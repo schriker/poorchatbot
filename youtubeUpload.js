@@ -41,28 +41,27 @@ const youtubeUpload = (fileName, facebookVideo) => {
       const startDate = moment(facebookVideo.started).add(2, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
 
       const videoDesc = `Całe archiwum strumieni: https://www.youtube.com/playlist?list=PLWbAUhvm4h-Mz9YKtMZQX2xAR_dzlklUv
-        oraz na stronie https://jarchiwum.pl
-
-        https://www.twitch.tv/mujstach - tu znajdziecie MujStacha
-        https://twitter.com/glamh0th - tu znajdziecie Glamhotha
-        https://twitter.com/dzejTH - tu znajdziecie Dżeja.
-
-        Śledzić nas można:
-        http://jadisco.pl - to jest małe centrum sterowania światem.
-        https://www.facebook.com/StrumienieZRuczaju -  obecnie z tego miejsca nadlatują strimy i prowadzone są tam typowo socjalkowe akcji (wpisy, płatne wpisy itd.)
-        suchykanal@gmail.com - kontakt
-        http://steamcommunity.com/groups/Szpara - grupa steamowa, też ma powiadomienia
-        https://twitter.com/wonziu - to mój intymny twitter
-        https://twitter.com/ruczajircpower - a to twitter, który informuje o tym kiedy i co dzieje się na strumieniu. Realnie to najlepiej działający powiadamiacz.
-
-        Współpracują z nami twórcy muzyki:
-        https://soundcloud.com/atian
-        https://www.grindpeace.com/
-
-        ${facebookVideo.facebookId}
-
-        Pozdrawiam,
-        m.`
+      oraz na stronie https://jarchiwum.pl
+      
+      https://www.twitch.tv/mujstach - tu znajdziecie MujStacha
+      https://twitter.com/glamh0th - tu znajdziecie Glamhotha
+      https://twitter.com/dzejTH - tu znajdziecie Dżeja.
+      
+      Śledzić nas można:
+      http://jadisco.pl - to jest małe centrum sterowania światem.
+      https://www.facebook.com/StrumienieZRuczaju -  obecnie z tego miejsca nadlatują strimy i prowadzone są tam typowo socjalkowe akcji (wpisy, płatne wpisy itd.)
+      suchykanal@gmail.com - kontakt
+      http://steamcommunity.com/groups/Szpara - grupa steamowa, też ma powiadomienia
+      https://twitter.com/wonziu - to mój intymny twitter
+      https://twitter.com/ruczajircpower - a to twitter, który informuje o tym kiedy i co dzieje się na strumieniu. Realnie to najlepiej działający powiadamiacz.
+      
+      Współpracują z nami twórcy muzyki:
+      https://soundcloud.com/atian
+      https://www.grindpeace.com/
+      
+      Pozdrawiam,
+      m.
+      ${facebookVideo.facebookId}`
   
       const video = await youtube.videos.insert({
         part: 'id,snippet,status',
