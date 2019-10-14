@@ -31,7 +31,7 @@ const wykopNotifier = async () => {
         if (video.public) {
           postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/${video.facebookId}?platform=facebook (facebook)(**${video.duration}**)(_${video.title}_)`
         } else {
-          postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/nvidiageforcepl/${video.facebookId}?platform=twitch (nvidia)(**${video.duration}**)(_${video.title}_)`
+          postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/${video.facebookId}?platform=facebook (nvidia)(**${video.duration}**)(_${video.title}_)`
         }
       })
       postBodyTemplate += `
