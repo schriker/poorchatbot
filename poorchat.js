@@ -15,6 +15,7 @@ class Poorchat extends EventEmitter {
         this.channel = options.channel
         this.debug = options.debug 
         this.options = options
+        this.PONGInterval = null
     }
 
     messageEncode(data) {
@@ -60,6 +61,10 @@ class Poorchat extends EventEmitter {
                 }
     
                 if (message.command === 'JOIN' && message.prefix.split('!')[0] === this.login) {
+                    clearInterval(this.PONGInterval)
+                    setInterval(() => {
+                        this.sendMessage(`PONG irc.poorchat.net`)
+                    }, 30000)
                     console.log('IRC Conntected!')
                     resolve()
                 }
@@ -73,9 +78,6 @@ class Poorchat extends EventEmitter {
     }
 
     messageHandler(message) {
-        setInterval(() => {
-            this.sendMessage(`PONG irc.poorchat.net`)
-        }, 30000);
         switch (message.command) {
             case 'PING':
                 this.sendMessage(`PONG ${message.params[0]}`)
