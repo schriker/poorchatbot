@@ -73,6 +73,9 @@ class Poorchat extends EventEmitter {
     }
 
     messageHandler(message) {
+        setInterval(() => {
+            this.sendMessage(`PONG irc.poorchat.net`)
+        }, 30000);
         switch (message.command) {
             case 'PING':
                 this.sendMessage(`PONG ${message.params[0]}`)
@@ -94,7 +97,7 @@ class Poorchat extends EventEmitter {
                 break
             default: 
                 if (this.debug) {
-                    console.log(message)
+                    console.log(message.raw)
                 }
         }
     }
