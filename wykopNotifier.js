@@ -28,11 +28,12 @@ const wykopNotifier = async () => {
 
       const numbers = ['\u2460', '\u2461', '\u2462', '\u2463', '\u2464', '\u2465', '\u2466', '\u2467', '\u2468', '\u2469']
       videosFromLast24H.forEach((video, index) => {
-        if (video.public) {
-          postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/${video.facebookId}?platform=facebook (facebook)(**${video.duration}**)(_${video.title}_)`
-        } else {
-          postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/${video.facebookId}?platform=facebook (nvidia)(**${video.duration}**)(_${video.title}_)`
-        }
+        const platfrom = video.public ? 'facebook' : 'nvidia'
+        const splitTitle = video.title.split(/^\s*\n/gm)
+        splitTitle.unshift('\n\n')
+        const joinTitle = splitTitle.join('>')
+        postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/${video.facebookId}?platform=facebook (${platfrom})(**${video.duration}**)`
+        postBodyTemplate += joinTitle
       })
       postBodyTemplate += `
       \nⓘ ${topic}
