@@ -81,14 +81,11 @@ ${facebookVideo.facebookId}`
       })
       resolve(video)
     } catch (err) {
-      if (err.response) {
-        if (err.response.status === 401) {
-          setTimeout(() => youtubeUpload(fileName), 300000)
-        } else if (err.response.status === 403) {
-          setTimeout(() => youtubeUpload(fileName), 86400000)
+        const error = {
+          data: err,
+          facebookVideo: facebookVideo 
         }
-      }
-      console.log(err)
+        reject(error)
     }
   })
 }

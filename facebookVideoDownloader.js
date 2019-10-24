@@ -1,4 +1,5 @@
 const fs = require('fs')
+const moment = require('moment')
 const { exec } = require('child_process')
 const youtubeUpload = require('./youtubeUpload')
 const FacebookVideo = require('./models/facebookVideo')
@@ -12,17 +13,31 @@ const facebookVideoDownloader = (video) => {
     }
     exec(comand, 
     async (error, stdout, stderr) => {
-      if (error) {
-          console.error(`exec error: ${error}`)
-          return
+      try {
+        if (error) {
+            console.error(`exec error: ${error}`)
+            return
+          }
+        const youTubeVideo = await youtubeUpload(`${video.facebookId}.mp4`, video)
+        fs.unlinkSync(`${video.facebookId}.mp4`)
+        const videoInDatabase = await FacebookVideo.findById(video._id)
+        videoInDatabase.youTubeId = youTubeVideo.data.id
+        videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.medium.url
+        videoInDatabase.save()
+        console.log('Video reuploaded!')
+      } catch (err) {
+        if (err.data.response) {
+          if (err.data.response.status === 401) {
+            setTimeout(() => facebookVideoDownloader(err.facebookVideo), 300000)
+          } else if (err.data.response.status === 403) {
+            const currentTime = moment().format()
+            const nextUpload = moment().add('1', 'd').set('h', 7).set('m', 5).set('s', 0).format()
+            const msToNextUploadTry = new Date(nextUpload) - new Date(currentTime)
+            setTimeout(() => facebookVideoDownloader(err.facebookVideo), msToNextUploadTry)
+          }
         }
-      const youTubeVideo = await youtubeUpload(`${video.facebookId}.mp4`, video)
-      fs.unlinkSync(`${video.facebookId}.mp4`)
-      const videoInDatabase = await FacebookVideo.findById(video._id)
-      videoInDatabase.youTubeId = youTubeVideo.data.id
-      videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.medium.url
-      videoInDatabase.save()
-      console.log('Video reuploaded!')
+        console.log(err.data)
+      }
     })
 }
 
