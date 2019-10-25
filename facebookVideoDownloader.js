@@ -27,8 +27,9 @@ const facebookVideoDownloader = (video) => {
         console.log('Video reuploaded!')
       } catch (err) {
         if (err.data.response) {
-          if (err.data.response.status === 401) {
+          if (err.data.response.status === 401 || err.data.response.status === 500) {
             setTimeout(() => facebookVideoDownloader(err.facebookVideo), 300000)
+            
           } else if (err.data.response.status === 403) {
             const currentTime = moment().format()
             const nextUpload = moment().add('1', 'd').set('h', 7).set('m', 5).set('s', 0).format()
