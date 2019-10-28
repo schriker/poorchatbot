@@ -38,7 +38,7 @@ const youtubeUpload = (fileName, facebookVideo) => {
         auth: oAuthClient
       })
 
-      const startDate = moment(facebookVideo.started).add(2, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
+      const startDate = moment(facebookVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
 
       const videoDesc = `Całe archiwum strumieni: https://www.youtube.com/playlist?list=PLWbAUhvm4h-Mz9YKtMZQX2xAR_dzlklUv
 oraz na stronie https://jarchiwum.pl
