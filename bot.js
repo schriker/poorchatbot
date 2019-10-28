@@ -16,6 +16,12 @@ const bot = async () => {
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
+    const highLights = ['XD', 'KEK', 'LUL', 'LOL']
+    let videoHighLights = []
+    let highLightsCount = 0
+    let highLightsTime = null
+    let highLightsTimer = null
+    let totalMessagesCount = 0
     
     const options = {
         websocket: 'https://irc.poorchat.net/',
@@ -55,6 +61,7 @@ const bot = async () => {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
+                videoHighLights = []
                 videoStartDate = date
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
@@ -64,7 +71,7 @@ const bot = async () => {
                 client.on('message', messageHandler)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
-                client.off('message', messageHandler)
+                client.on('message', messageHandler)
                 searchFacebookVideo(message.data.topic.text)
             }
         }
@@ -99,6 +106,35 @@ const bot = async () => {
             message.save()
         } catch (error) {
             console.log(error)
+        }
+
+        totalMessagesCount += 1
+
+        for (let keyWord of highLights) {
+            if (messageBody.toLowerCase().includes(keyWord.toLowerCase())) {
+                highLightsCount += 1
+                if (highLightsCount === 1) {
+                    totalMessagesCount = 1
+                    highLightsTime = new Date()
+                }
+                if (highLightsCount >= 1) {
+                    clearTimeout(highLightsTimer)
+                    highLightsTimer = setTimeout(() => {
+                        let percent = highLightsCount / totalMessagesCount * 100
+                        if (percent >= 50 && highLightsCount > 5) {
+                           videoHighLights.push({
+                               time: highLightsTime,
+                               percent: percent,
+                               highLightsCount: highLightsCount,
+                               totalMessagesCount: totalMessagesCount
+                           }) 
+                        }
+                        highLightsCount = 0
+                        highLightsTime = null
+                        totalMessagesCount = 0
+                    }, 10000)
+                }
+            }
         }
     }
 

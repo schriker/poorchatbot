@@ -12,6 +12,7 @@ const facebookVideoSchema = new Schema({
   views: Number,
   started: Date,
   public: Boolean,
+  highLights: Array
   },
   {
     timestamps: { 
