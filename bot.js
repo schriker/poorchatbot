@@ -72,7 +72,7 @@ const bot = async () => {
                 client.on('message', messageHandler)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
-                client.on('message', messageHandler)
+                client.off('message', messageHandler)
                 searchFacebookVideo(message.data.topic.text)
             }
         }
