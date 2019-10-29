@@ -156,7 +156,8 @@ const bot = async () => {
                     duration: video.duration,
                     started: videoStartDate,
                     thumbnail: video.thumbnail_url,
-                    public: false
+                    public: false,
+                    highLights: videoHighLights
                 }
                 const videoTwitch = new FacebookVideo(facebookVideoData)
                 const savedVideo = await videoTwitch.save()
@@ -179,7 +180,8 @@ const bot = async () => {
                     duration: msToTime(new Date() - videoStartDate),
                     started: videoStartDate,
                     thumbnail: videoData.thumbnailURI,
-                    public: true
+                    public: true,
+                    highLights: videoHighLights
                 }
                 const video = new FacebookVideo(facebookVideoData)
                 const savedVideo = await video.save()
