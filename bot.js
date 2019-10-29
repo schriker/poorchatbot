@@ -16,8 +16,9 @@ const bot = async () => {
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
-    const highLights = ['XD', 'KEK', 'LUL', 'LOL']
+    const highLights = ['XD', 'KEK', 'LUL', 'LOL', 'Clap', '10na10', 'Gg', 'Dafuq', 'PepeHands', 'monkaS', 'CoDoKur', 'GOTY']
     let videoHighLights = []
+    let highLightsType = ''
     let highLightsCount = 0
     let highLightsTime = null
     let highLightsTimer = null
@@ -115,6 +116,7 @@ const bot = async () => {
                 highLightsCount += 1
                 if (highLightsCount === 1) {
                     totalMessagesCount = 1
+                    highLightsType = keyWord
                     highLightsTime = new Date()
                 }
                 if (highLightsCount >= 1) {
@@ -126,12 +128,11 @@ const bot = async () => {
                                time: highLightsTime,
                                percent: percent,
                                highLightsCount: highLightsCount,
-                               totalMessagesCount: totalMessagesCount
+                               totalMessagesCount: totalMessagesCount,
+                               type: highLightsType
                            }) 
                         }
                         highLightsCount = 0
-                        highLightsTime = null
-                        totalMessagesCount = 0
                     }, 10000)
                 }
             }
