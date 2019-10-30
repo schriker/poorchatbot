@@ -16,7 +16,29 @@ const bot = async () => {
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
-    const highLights = ['XD', 'KEK', 'LUL', 'LOL', 'Clap', '10na10', 'Gg', 'Dafuq', 'PepeHands', 'monkaS', 'CoDoKur', 'GOTY']
+    const highLights = [
+        'XD',
+        'KEK',
+        'LUL',
+        'LOL',
+        'Clap',
+        '10na10',
+        'Gg',
+        'Dafuq',
+        'PepeHands',
+        'monkaS',
+        'CoDoKur',
+        'GOTY',
+        'Feels',
+        'DZEJowiec',
+        'Pepega',
+        'REe',
+        'HAhaa',
+        'Sheeeit',
+        'ANELE',
+        'pepeJAM',
+        'ANGERY'
+    ]
     let videoHighLights = []
     let highLightsType = ''
     let highLightsCount = 0
