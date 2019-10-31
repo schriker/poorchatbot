@@ -68,7 +68,27 @@ const bot = async () => {
     const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
         WebSocket: WebSocket
     })
-    console.log('Working...')    
+    console.log('Working...')
+
+    setInterval(async () => {
+        const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
+        const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
+
+        if (videoData.viewCount === '0' && !isFacebook) {
+            const date = new Date()
+            isFacebook = true
+            videoHighLights = []
+            videoStartDate =  date
+            console.log(`Facebook Stream: [Online] - ${date}`)
+            client.on('message', messageHandler)
+        } else if (videoData.viewCount !== '0' && isFacebook) {
+            const date = new Date()
+            console.log(`Facebook Stream: [Offline] - ${date}`)
+            client.off('message', messageHandler)
+            searchFacebookVideo(videoData.title)
+        }
+    }, 2000)
+
     notifier.addEventListener('message', (response) => {
         const data = JSON.parse(response.data)
         message = merge(message, data)
@@ -86,16 +106,20 @@ const bot = async () => {
             if (currentStatus) {
                 videoHighLights = []
                 videoStartDate = date
-                isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
+                // isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
                     isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
                 }
-                console.log(`Stream: [Online] - ${date}`)
-                client.on('message', messageHandler)
+                if (isNvidia) {
+                    console.log(`Twitch Stream: [Online] - ${date}`)
+                    client.on('message', messageHandler)
+                }
             } else if (!currentStatus) {
-                console.log(`Stream: [Offline] - ${date}`)
-                client.off('message', messageHandler)
-                searchFacebookVideo(message.data.topic.text)
+                if (isNvidia) {
+                    console.log(`Twitch Stream: [Offline] - ${date}`)
+                    client.off('message', messageHandler)
+                    searchFacebookVideo(message.data.topic.text)
+                }
             }
         }
     })
@@ -231,7 +255,7 @@ const bot = async () => {
                 const video = new FacebookVideo(facebookVideoData)
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
-                console.log(`FB Vide Saved - ${facebookVideoData.title}`)
+                console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
                 setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 isFacebook = false
             } catch (error) {
