@@ -161,6 +161,27 @@ const bot = async () => {
         }
     }
 
+    const countChatData = async (videoId) => {
+        const chatData = []
+        const video = await FacebookVideo.findById(videoId)
+        const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
+        const duration = new Date(video.createdAt) - new Date(video.started) // ms
+
+        for (let i = 0; i < duration; i += 20000 ) {
+          const messagesCount = messages.filter((message) => {
+            const messageTime = new Date(message.createdAt) - new Date(video.started)
+            if (messageTime > i && messageTime < i + 20000) {
+              return true
+            } else {
+              return false
+            }
+          })
+          chatData.push({ [i]: messagesCount.length })   
+        }
+        video.chatData = chatData
+        await video.save()
+    }
+
     const searchFacebookVideo = async (videoTitle) => {
         if (videoStartDate && isNvidia) {
             try {
@@ -184,6 +205,7 @@ const bot = async () => {
                 }
                 const videoTwitch = new FacebookVideo(facebookVideoData)
                 const savedVideo = await videoTwitch.save()
+                countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
                 setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 isNvidia = false
@@ -208,6 +230,7 @@ const bot = async () => {
                 }
                 const video = new FacebookVideo(facebookVideoData)
                 const savedVideo = await video.save()
+                countChatData(savedVideo._id)
                 console.log(`FB Vide Saved - ${facebookVideoData.title}`)
                 setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 isFacebook = false
