@@ -6,6 +6,7 @@ const FacebookVideo = require('./models/facebookVideo')
 const config = require('./config.json')
 const merge = require('lodash.merge')
 const axios = require('axios')
+const qs = require('querystring')
 const msToTime = require('./helpers/milisecondsToTime')
 const facebookVideoDownloader = require('./facebookVideoDownloader')
 
@@ -245,13 +246,27 @@ const bot = async () => {
             try {
                 const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
                 const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
+
+                const timeResponse = await axios({
+                    url: `https://www.facebook.com/video/tahoe/async/${video.facebookId}/?payloadtype=secondary`,
+                    method: 'POST',
+                    data: qs.stringify({ '__a': 1 }),
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                      'User-Agent': 'PostmanRuntime/7.19.0'
+                    }
+                  })
+                  const timeData = JSON.parse(timeResponse.data.split('for (;;);')[1])
+                  const ftKey = JSON.parse(timeData.payload.ftKey)
+                  const videoTimeStamp = new Date(ftKey.page_insights[ftKey.page_id].post_context.publish_time * 1000)
+
                 facebookVideoData = {
                     facebookId: videoData.videoID,
                     url: videoData.videoURL,
                     title: videoData.title || videoTitle,
                     views: 0,
                     duration: msToTime(new Date() - videoStartDate),
-                    started: videoStartDate,
+                    started: videoTimeStamp,
                     thumbnail: videoData.thumbnailURI,
                     public: true,
                     highLights: videoHighLights
