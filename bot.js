@@ -8,6 +8,9 @@ const merge = require('lodash.merge')
 const axios = require('axios')
 const qs = require('querystring')
 const msToTime = require('./helpers/milisecondsToTime')
+const messageCreator = require('./bot/messageCreator')
+const countChatData = require('./bot/countChatData')
+const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
 const facebookVideoDownloader = require('./facebookVideoDownloader')
 
 const bot = async () => {
@@ -17,6 +20,7 @@ const bot = async () => {
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
+    const messagesBuffer = []
     const highLights = [
         'XD',
         'KEK',
@@ -66,6 +70,19 @@ const bot = async () => {
     const client = new Poorchat(options)
     await client.connect()
 
+    const messagesBufferHandler = async (IRCMessage) => {
+        console.log('Buffer')
+        const messageData = messageCreator(IRCMessage, new Date)
+        if (messagesBuffer.length > 30) {
+            messagesBuffer.shift()
+            messagesBuffer.push(messageData)            
+        } else {
+            messagesBuffer.push(messageData)
+        }
+    }
+
+    client.on('message', messagesBufferHandler)
+
     const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
         WebSocket: WebSocket
     })
@@ -82,10 +99,13 @@ const bot = async () => {
                 videoHighLights = []
                 videoStartDate =  date
                 console.log(`Facebook Stream: [Online] - ${date}`)
+                client.off('message', messagesBufferHandler)
                 client.on('message', messageHandler)
+                saveMessagesBuffer(messagesBuffer)
             } else if (videoData.viewCount !== '0' && isFacebook) {
                 const date = new Date()
                 console.log(`Facebook Stream: [Offline] - ${date}`)
+                client.on('message', messagesBufferHandler)
                 client.off('message', messageHandler)
                 searchFacebookVideo(videoData.title)
             }
@@ -94,7 +114,7 @@ const bot = async () => {
         }
     }, 2000)
 
-    notifier.addEventListener('message', (response) => {
+    notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
         message = merge(message, data)
         if (message.data.type === 'ping') {
@@ -117,11 +137,14 @@ const bot = async () => {
                     videoHighLights = []
                     videoStartDate = date
                     console.log(`Twitch Stream: [Online] - ${date}`)
+                    client.off('message', messagesBufferHandler)
                     client.on('message', messageHandler)
+                    saveMessagesBuffer(messagesBuffer)
                 }
             } else if (!currentStatus) {
                 if (isNvidia) {
                     console.log(`Twitch Stream: [Offline] - ${date}`)
+                    client.on('message', messagesBufferHandler)
                     client.off('message', messageHandler)
                     searchFacebookVideo(message.data.topic.text)
                 }
@@ -130,30 +153,9 @@ const bot = async () => {
     })
 
     const messageHandler = async (IRCMessage) => {
-        const messageBody = IRCMessage.params[1]
-        let subscription = 0
-        let subscriptiongifter = 0
-
-        const author = IRCMessage.command === 'PRIVMSG' ? IRCMessage.prefix.split('!')[0] : 'irc.poorchat.net'
-        
-        if (IRCMessage.tags['poorchat.net/subscription']) {
-            subscription = JSON.parse(IRCMessage.tags['poorchat.net/subscription'].replace('\\s', ' ')).months
-        }
-
-        if (IRCMessage.tags['poorchat.net/subscriptiongifter']) {
-            subscriptiongifter = JSON.parse(IRCMessage.tags['poorchat.net/subscriptiongifter'].replace('\\s', ' ')).months
-        }
-
-        const messageData = {
-            type: IRCMessage.command,
-            author: author,
-            body: messageBody,
-            color: IRCMessage.tags['poorchat.net/color'] || '',
-            subscription: subscription,
-            subscriptiongifter: subscriptiongifter
-        }
-
+        const messageData = messageCreator(IRCMessage)
         const message = new Message(messageData)
+
         try {
             message.save()
         } catch (error) {
@@ -163,7 +165,7 @@ const bot = async () => {
         totalMessagesCount += 1
 
         for (let keyWord of highLights) {
-            if (messageBody.toLowerCase().includes(keyWord.toLowerCase())) {
+            if (messageData.body.toLowerCase().includes(keyWord.toLowerCase())) {
                 highLightsCount += 1
                 if (highLightsCount === 1) {
                     totalMessagesCount = 1
@@ -188,27 +190,6 @@ const bot = async () => {
                 }
             }
         }
-    }
-
-    const countChatData = async (videoId) => {
-        const chatData = []
-        const video = await FacebookVideo.findById(videoId)
-        const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
-        const duration = new Date(video.createdAt) - new Date(video.started) // ms
-
-        for (let i = 0; i < duration; i += 60000 ) {
-          const messagesCount = messages.filter((message) => {
-            const messageTime = new Date(message.createdAt) - new Date(video.started)
-            if (messageTime > i && messageTime < i + 60000) {
-              return true
-            } else {
-              return false
-            }
-          })
-          chatData.push({ [i]: messagesCount.length })   
-        }
-        video.chatData = chatData
-        await video.save()
     }
 
     const searchFacebookVideo = async (videoTitle) => {
@@ -248,7 +229,7 @@ const bot = async () => {
                 const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
 
                 const timeResponse = await axios({
-                    url: `https://www.facebook.com/video/tahoe/async/${video.facebookId}/?payloadtype=secondary`,
+                    url: `https://www.facebook.com/video/tahoe/async/${videoData.videoID}/?payloadtype=secondary`,
                     method: 'POST',
                     data: qs.stringify({ '__a': 1 }),
                     headers: {
