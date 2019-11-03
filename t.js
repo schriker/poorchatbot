@@ -30,49 +30,7 @@ const FacebookVideo = require('./models/facebookVideo')
 
 const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
 
-const date = () => {
-  mongoose.connect(mongoHost, {
-        useNewUrlParser: true,
-        useFindAndModify: false,
-        useUnifiedTopology: true
-        })
-        .then(async () => {
-          console.log('Contected!')
-
-          const videos = await FacebookVideo.find({ public: true }).sort({createdAt: -1})
-          console.log(videos.length)
-          for (let video of videos) { 
-            try {
-              const response = await axios({
-                url: `https://www.facebook.com/video/tahoe/async/${video.facebookId}/?payloadtype=secondary`,
-                method: 'POST',
-                data: qs.stringify({ '__a': 1 }),
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                  'User-Agent': 'PostmanRuntime/7.19.0'
-                }
-              })
-              const data = JSON.parse(response.data.split('for (;;);')[1])
-              const ftKey = JSON.parse(data.payload.ftKey)
-              const videoTimeStamp = new Date(ftKey.page_insights[ftKey.page_id].post_context.publish_time * 1000)
-              video.started = videoTimeStamp
-              await video.save()
-              console.log(video._id)
-            } catch (err) {
-              console.log(err)
-            }
-          }
-          console.log('Done!')      
-        })
-        .catch(err => {
-          console.log(err)
-        })
-}
-
-// date()
-
-// const chart = () => {
-
+// const date = () => {
 //   mongoose.connect(mongoHost, {
 //         useNewUrlParser: true,
 //         useFindAndModify: false,
@@ -81,27 +39,28 @@ const date = () => {
 //         .then(async () => {
 //           console.log('Contected!')
 
-//           const videos = await FacebookVideo.find().sort({createdAt: -1})
-
-//           for (let video of videos) {
-//             const chatData = []
-//             const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
-//             const duration = new Date(video.createdAt) - new Date(video.started) // ms
-  
-//             for (let i = 0; i < duration; i += 60000 ) {
-//               const messagesCount = messages.filter((message) => {
-//                 const messageTime = new Date(message.createdAt) - new Date(video.started)
-//                 if (messageTime > i && messageTime < i + 60000) {
-//                   return true
-//                 } else {
-//                   return false
+//           const videos = await FacebookVideo.find({ facebookId: '1123260671397265' }).sort({createdAt: -1})
+//           console.log(videos.length)
+//           for (let video of videos) { 
+//             try {
+//               const response = await axios({
+//                 url: `https://www.facebook.com/video/tahoe/async/${video.facebookId}/?payloadtype=secondary`,
+//                 method: 'POST',
+//                 data: qs.stringify({ '__a': 1 }),
+//                 headers: {
+//                   'Content-Type': 'application/x-www-form-urlencoded',
+//                   'User-Agent': 'PostmanRuntime/7.19.0'
 //                 }
 //               })
-//               chatData.push({ [i]: messagesCount.length })   
+//               const data = JSON.parse(response.data.split('for (;;);')[1])
+//               const ftKey = JSON.parse(data.payload.ftKey)
+//               const videoTimeStamp = new Date(ftKey.page_insights[ftKey.page_id].post_context.publish_time * 1000)
+//               video.started = videoTimeStamp
+//               await video.save()
+//               console.log(video._id)
+//             } catch (err) {
+//               console.log(err)
 //             }
-//             video.chatData = chatData
-//             await video.save()
-//             console.log(video._id)
 //           }
 //           console.log('Done!')      
 //         })
@@ -109,6 +68,49 @@ const date = () => {
 //           console.log(err)
 //         })
 // }
+
+// date()
+
+const chart = () => {
+
+  mongoose.connect(mongoHost, {
+        useNewUrlParser: true,
+        useFindAndModify: false,
+        useUnifiedTopology: true
+        })
+        .then(async () => {
+          console.log('Contected!')
+
+          const videos = await FacebookVideo.find().sort({createdAt: -1})
+
+          for (let video of videos) {
+            const chatData = []
+            const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
+            const duration = new Date(video.createdAt) - new Date(video.started) // ms
+  
+            for (let i = 0; i < duration; i += 60000 ) {
+              const messagesCount = messages.filter((message) => {
+                const messageTime = new Date(message.createdAt) - new Date(video.started)
+                if (messageTime > i && messageTime < i + 60000) {
+                  return true
+                } else {
+                  return false
+                }
+              })
+              chatData.push(messagesCount.length)   
+            }
+            video.chatData = chatData
+            await video.save()
+            console.log(video._id)
+          }
+          console.log('Done!')      
+        })
+        .catch(err => {
+          console.log(err)
+        })
+}
+
+chart()
 
 
 // const highLights = [
@@ -149,10 +151,11 @@ const date = () => {
 //     })
 //     .then(async () => {
 //       console.log('Contected to DB')
-//       const videos = await FacebookVideo.find().sort({createdAt: -1})
+//       const videos = await FacebookVideo.find({ facebookId: '1123260671397265' }).sort({createdAt: -1})
+//       console.log(videos.length)
 
-//       for (let i = 3; i < videos.length; i++) {
-//         const messages = await Message.find({ createdAt: { $gt: videos[i].started, $lt: videos[i].createdAt } }).sort({ createdAt: 'asc' })
+//       for (let video of videos){
+//         const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
         
 //         for (let message of messages) {
 //           totalMessagesCount += 1
@@ -186,9 +189,9 @@ const date = () => {
 //           }
 //         }
 
-//         const video = await FacebookVideo.find({ _id: videos[i]._id })
-//         video[0].highLights = videoHighLights
-//         await video[0].save()
+//         const videodb = await FacebookVideo.find({ _id: video._id })
+//         videodb[0].highLights = videoHighLights
+//         await videodb[0].save()
 //         videoHighLights = []
 //       }
 
@@ -199,3 +202,4 @@ const date = () => {
 //     })
 // }
 
+// moments()
