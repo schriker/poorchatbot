@@ -12,7 +12,6 @@ const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
-const facebookVideoDownloader = require('./facebookVideoDownloader')
 
 const bot = async () => {
     let message = {}
@@ -49,7 +48,6 @@ const bot = async () => {
     await client.connect()
 
     const messagesBufferHandler = async (IRCMessage) => {
-        console.log(messagesBuffer)
         const messageData = messageCreator(IRCMessage, new Date)
         if (messagesBuffer.length > 30) {
             messagesBuffer.shift()
@@ -164,7 +162,6 @@ const bot = async () => {
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
-                setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 isNvidia = false
             } catch (err) {
                 console.log(err)
@@ -203,7 +200,6 @@ const bot = async () => {
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
                 console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
-                setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 isFacebook = false
             } catch (error) {
                 console.log(error)

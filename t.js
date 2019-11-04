@@ -21,14 +21,14 @@
 //   })
 // }
 
-const axios = require('axios')
-const mongoose = require('mongoose')
-const qs = require('querystring')
-const config = require('./config.json')
-const Message = require('./models/message')
-const FacebookVideo = require('./models/facebookVideo')
+// const axios = require('axios')
+// const mongoose = require('mongoose')
+// const qs = require('querystring')
+// const config = require('./config.json')
+// const Message = require('./models/message')
+// const FacebookVideo = require('./models/facebookVideo')
 
-const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
+// const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
 
 // const date = () => {
 //   mongoose.connect(mongoHost, {
@@ -71,46 +71,46 @@ const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB
 
 // date()
 
-const chart = () => {
+// const chart = () => {
 
-  mongoose.connect(mongoHost, {
-        useNewUrlParser: true,
-        useFindAndModify: false,
-        useUnifiedTopology: true
-        })
-        .then(async () => {
-          console.log('Contected!')
+//   mongoose.connect(mongoHost, {
+//         useNewUrlParser: true,
+//         useFindAndModify: false,
+//         useUnifiedTopology: true
+//         })
+//         .then(async () => {
+//           console.log('Contected!')
 
-          const videos = await FacebookVideo.find().sort({createdAt: -1})
+//           const videos = await FacebookVideo.find().sort({createdAt: -1})
 
-          for (let video of videos) {
-            const chatData = []
-            const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
-            const duration = new Date(video.createdAt) - new Date(video.started) // ms
+//           for (let video of videos) {
+//             const chatData = []
+//             const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
+//             const duration = new Date(video.createdAt) - new Date(video.started) // ms
   
-            for (let i = 0; i < duration; i += 60000 ) {
-              const messagesCount = messages.filter((message) => {
-                const messageTime = new Date(message.createdAt) - new Date(video.started)
-                if (messageTime > i && messageTime < i + 60000) {
-                  return true
-                } else {
-                  return false
-                }
-              })
-              chatData.push(messagesCount.length)   
-            }
-            video.chatData = chatData
-            await video.save()
-            console.log(video._id)
-          }
-          console.log('Done!')      
-        })
-        .catch(err => {
-          console.log(err)
-        })
-}
+//             for (let i = 0; i < duration; i += 60000 ) {
+//               const messagesCount = messages.filter((message) => {
+//                 const messageTime = new Date(message.createdAt) - new Date(video.started)
+//                 if (messageTime > i && messageTime < i + 60000) {
+//                   return true
+//                 } else {
+//                   return false
+//                 }
+//               })
+//               chatData.push(messagesCount.length)   
+//             }
+//             video.chatData = chatData
+//             await video.save()
+//             console.log(video._id)
+//           }
+//           console.log('Done!')      
+//         })
+//         .catch(err => {
+//           console.log(err)
+//         })
+// }
 
-chart()
+// chart()
 
 
 // const highLights = [
@@ -231,3 +231,54 @@ chart()
     //         console.log('Facebook interval error!')
     //     }
     // }, 2000)
+
+const WebSocket = require('ws')
+const ReconnectingWebSocket = require('reconnecting-websocket')
+
+const ws = () => {
+  const notifier = new ReconnectingWebSocket('https://api.bonkol.tv/streams', [], {
+    WebSocket: WebSocket
+  })
+
+  notifier.addEventListener('open', () => {
+    const follow = JSON.stringify({ type: 'follow', name:'bonkol' })
+    notifier.send(follow)
+})
+
+  notifier.addEventListener('message', async (response) => {
+    console.log(response)
+    // const data = JSON.parse(response.data)
+    // message = merge(message, data)
+    // if (message.data.type === 'ping') {
+    //     const pong = JSON.stringify({ type: 'pong' })
+    //     notifier.send(pong)
+    //     return
+    // } 
+
+    // const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
+
+    // if (currentStatus !== newMessageStatus) {
+    //     const date = new Date()
+    //     currentStatus = newMessageStatus
+    //     if (currentStatus) {
+    //         isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
+    //         if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
+    //             isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
+    //         }
+    //         videoHighLights = []
+    //         videoStartDate = date
+    //         console.log(`Stream: [Online] - ${date}`)
+    //         client.off('message', messagesBufferHandler)
+    //         client.on('message', messageHandler)
+    //         saveMessagesBuffer(messagesBuffer)
+    //     } else if (!currentStatus) {
+    //         console.log(`Stream: [Offline] - ${date}`)
+    //         client.on('message', messagesBufferHandler)
+    //         client.off('message', messageHandler)
+    //         searchFacebookVideo(message.data.topic.text)
+    //     }
+    // }
+  })
+}
+
+ws()

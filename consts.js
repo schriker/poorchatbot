@@ -21,3 +21,10 @@ exports.highLights = [
   'pepeJAM',
   'ANGERY'
 ]
+
+exports.streamers = [
+  {
+    name: 'bonkol',
+    page_id: '433560203365504',
+  }
+]
