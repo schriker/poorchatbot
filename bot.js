@@ -94,10 +94,10 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
                 client.on('message', messageHandler)
                 saveMessagesBuffer(messagesBuffer, name)
             } else if (!currentStatus) {
-                console.log(`Stream: [Offline] - ${date}`)
+                console.log(`${name} is: [Offline] - ${date}`)
                 client.on('message', messagesBufferHandler)
                 client.off('message', messageHandler)
-                searchFacebookVideo(message.data.topic.text)
+                searchFacebookVideo()
             }
         }
     })
@@ -142,7 +142,7 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
         }
     }
 
-    const searchFacebookVideo = async (videoTitle) => {
+    const searchFacebookVideo = async () => {
         if (videoStartDate && isTwitch) {
             try {
                 const response = await axios.get(`https://api.twitch.tv/helix/videos?user_id=${twitchId}`, {
@@ -193,7 +193,7 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
                 facebookVideoData = {
                     facebookId: videoData.videoID,
                     url: videoData.videoURL,
-                    title: videoData.title || videoTitle,
+                    title: videoData.title || '',
                     views: 0,
                     duration: msToTime(new Date() - videoStartDate),
                     started: videoTimeStamp,
