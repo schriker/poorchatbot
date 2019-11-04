@@ -1,5 +1,6 @@
 const Poorchat = require('./poorchat')
 const WebSocket = require('ws')
+const { highLights }  = require('./consts')
 const ReconnectingWebSocket = require('reconnecting-websocket')
 const Message = require('./models/message')
 const FacebookVideo = require('./models/facebookVideo')
@@ -21,29 +22,6 @@ const bot = async () => {
     let videoStartDate = null
     let facebookVideoData = {}
     const messagesBuffer = []
-    const highLights = [
-        'XD',
-        'KEK',
-        'LUL',
-        'LOL',
-        'Clap',
-        '10na10',
-        'Gg',
-        'Dafuq',
-        'PepeHands',
-        'monkaS',
-        'CoDoKur',
-        'GOTY',
-        'Feels',
-        'DZEJowiec',
-        'Pepega',
-        'REe',
-        'HAhaa',
-        'Sheeeit',
-        'ANELE',
-        'pepeJAM',
-        'ANGERY'
-    ]
     let videoHighLights = []
     let highLightsType = ''
     let highLightsCount = 0
@@ -71,6 +49,7 @@ const bot = async () => {
     await client.connect()
 
     const messagesBufferHandler = async (IRCMessage) => {
+        console.log(messagesBuffer)
         const messageData = messageCreator(IRCMessage, new Date)
         if (messagesBuffer.length > 30) {
             messagesBuffer.shift()
@@ -80,38 +59,11 @@ const bot = async () => {
         }
     }
 
-    client.on('message', messagesBufferHandler)
-
     const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
         WebSocket: WebSocket
     })
+    
     console.log('Working...')
-
-    // setInterval(async () => {
-    //     try {            
-    //         const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
-    //         const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
-
-    //         if (videoData.viewCount === '0' && !isFacebook) {
-    //             const date = new Date()
-    //             isFacebook = true
-    //             videoHighLights = []
-    //             videoStartDate =  date
-    //             console.log(`Facebook Stream: [Online] - ${date}`)
-    //             client.off('message', messagesBufferHandler)
-    //             client.on('message', messageHandler)
-    //             saveMessagesBuffer(messagesBuffer)
-    //         } else if (videoData.viewCount !== '0' && isFacebook) {
-    //             const date = new Date()
-    //             console.log(`Facebook Stream: [Offline] - ${date}`)
-    //             client.on('message', messagesBufferHandler)
-    //             client.off('message', messageHandler)
-    //             searchFacebookVideo(videoData.title)
-    //         }
-    //     } catch (err) {
-    //         console.log('Facebook interval error!')
-    //     }
-    // }, 2000)
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)

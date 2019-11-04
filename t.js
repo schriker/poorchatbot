@@ -203,3 +203,31 @@ chart()
 // }
 
 // moments()
+
+
+
+    // setInterval(async () => {
+    //     try {            
+    //         const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
+    //         const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
+
+    //         if (videoData.viewCount === '0' && !isFacebook) {
+    //             const date = new Date()
+    //             isFacebook = true
+    //             videoHighLights = []
+    //             videoStartDate =  date
+    //             console.log(`Facebook Stream: [Online] - ${date}`)
+    //             client.off('message', messagesBufferHandler)
+    //             client.on('message', messageHandler)
+    //             saveMessagesBuffer(messagesBuffer)
+    //         } else if (videoData.viewCount !== '0' && isFacebook) {
+    //             const date = new Date()
+    //             console.log(`Facebook Stream: [Offline] - ${date}`)
+    //             client.on('message', messagesBufferHandler)
+    //             client.off('message', messageHandler)
+    //             searchFacebookVideo(videoData.title)
+    //         }
+    //     } catch (err) {
+    //         console.log('Facebook interval error!')
+    //     }
+    // }, 2000)
