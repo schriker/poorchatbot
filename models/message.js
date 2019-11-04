@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { streamers } = require('../consts')
 
 const Schema = mongoose.Schema
 
@@ -26,4 +27,13 @@ const messageSchema = new Schema({
     }
   })
 
-  module.exports = mongoose.model('Message', messageSchema)
+  let models = {}
+
+  for (let streamer of streamers) {
+    models = {
+      ...models,
+      [streamer.name]: mongoose.model(`${streamer.name}_message`, messageSchema)
+    }
+  }
+
+  module.exports = models

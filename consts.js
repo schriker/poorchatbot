@@ -1,4 +1,4 @@
-exports.highLights = [
+const highLights = [
   'XD',
   'KEK',
   'LUL',
@@ -19,12 +19,24 @@ exports.highLights = [
   'Sheeeit',
   'ANELE',
   'pepeJAM',
-  'ANGERY'
+  'ANGERY',
+  'blobDance',
+  'ILOVEYOU',
+  'gachiBASS',
+  'leh',
 ]
 
 exports.streamers = [
   {
     name: 'bonkol',
-    page_id: '433560203365504',
+    pageId: '433560203365504',
+    twitchId: '22386881',
+    highLights: highLights
+  },
+  {
+    name: 'leh',
+    pageId: '1477765125857920',
+    twitchId: '101879951',
+    highLights: highLights
   }
 ]

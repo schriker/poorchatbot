@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const config = require('./config.json')
 const bot = require('./bot')
+const { streamers } = require('./consts')
 
 const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
 
@@ -12,7 +13,9 @@ mongoose.connect(mongoHost, {
   })
   .then(async () => {
     console.log('DB connected!')
-    bot()
+    for (let streamer of streamers) {
+      bot(streamer)
+    }
   })
   .catch(err => {
     console.log(err)

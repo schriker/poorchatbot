@@ -1,9 +1,8 @@
 const Poorchat = require('./poorchat')
 const WebSocket = require('ws')
-const { highLights }  = require('./consts')
 const ReconnectingWebSocket = require('reconnecting-websocket')
 const Message = require('./models/message')
-const FacebookVideo = require('./models/facebookVideo')
+const Video = require('./models/facebookVideo')
 const config = require('./config.json')
 const merge = require('lodash.merge')
 const axios = require('axios')
@@ -13,10 +12,10 @@ const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
 
-const bot = async () => {
+const bot = async ({ name, highLights, pageId, twitchId }) => {
     let message = {}
     let isFacebook = false
-    let isNvidia = false
+    let isTwitch = false
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
@@ -31,7 +30,7 @@ const bot = async () => {
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
-        channel: '#jadisco',
+        channel: `#${name}`,
         login: config.USER_LOGIN,
         password: config.USER_PASSWORD,
         cap: [
@@ -57,8 +56,13 @@ const bot = async () => {
         }
     }
 
-    const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
+    const notifier = new ReconnectingWebSocket(`https://api.${name}.tv/streams`, [], {
         WebSocket: WebSocket
+      })
+    
+    notifier.addEventListener('open', () => {
+        const follow = JSON.stringify({ type: 'follow', name: name })
+        notifier.send(follow)
     })
     
     console.log('Working...')
@@ -72,22 +76,23 @@ const bot = async () => {
             return
         } 
 
-        const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
+        const services = Object.values(message.data.services)
+
+        const newMessageStatus = services.some(el => el.status.status === true)
 
         if (currentStatus !== newMessageStatus) {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
-                isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
-                if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
-                    isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
-                }
+                isFacebook = services.filter(el => el.service === 'facebook')[0].status.status
+                isTwitch = services.filter(el => el.service === 'twitch')[0].status.status
+
                 videoHighLights = []
                 videoStartDate = date
-                console.log(`Stream: [Online] - ${date}`)
+                console.log(`${name} is: [Online] - ${date}`)
                 client.off('message', messagesBufferHandler)
                 client.on('message', messageHandler)
-                saveMessagesBuffer(messagesBuffer)
+                saveMessagesBuffer(messagesBuffer, name)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
                 client.on('message', messagesBufferHandler)
@@ -99,7 +104,7 @@ const bot = async () => {
 
     const messageHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage)
-        const message = new Message(messageData)
+        const message = new Message[name](messageData)
 
         try {
             message.save()
@@ -138,9 +143,9 @@ const bot = async () => {
     }
 
     const searchFacebookVideo = async (videoTitle) => {
-        if (videoStartDate && isNvidia) {
+        if (videoStartDate && isTwitch) {
             try {
-                const response = await axios.get('https://api.twitch.tv/helix/videos?user_id=93141680', {
+                const response = await axios.get(`https://api.twitch.tv/helix/videos?user_id=${twitchId}`, {
                 headers: {
                     'Client-ID': 'w87bqmg0y9ckftb2aii2tdielbr1rx'
                     }
@@ -158,7 +163,7 @@ const bot = async () => {
                     public: false,
                     highLights: videoHighLights
                 }
-                const videoTwitch = new FacebookVideo(facebookVideoData)
+                const videoTwitch = new Video[name](facebookVideoData)
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
@@ -169,7 +174,7 @@ const bot = async () => {
         }
         if (videoStartDate && isFacebook) {
             try {
-                const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
+                const response = await axios.get(`https://www.facebook.com/pages/videos/search/?page_id=${pageId}&__a`)
                 const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
 
                 const timeResponse = await axios({
@@ -196,10 +201,10 @@ const bot = async () => {
                     public: true,
                     highLights: videoHighLights
                 }
-                const video = new FacebookVideo(facebookVideoData)
+                const video = new Video[name](facebookVideoData)
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
-                console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
+                console.log(`Facebook Video Saved - ${facebookVideoData.title}`)
                 isFacebook = false
             } catch (error) {
                 console.log(error)

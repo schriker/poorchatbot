@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { streamers } = require('../consts')
 
 const Schema = mongoose.Schema
 
@@ -22,4 +23,13 @@ const facebookVideoSchema = new Schema({
     }
   })
 
-  module.exports = mongoose.model('FacebookVideo', facebookVideoSchema)
+  let models = {}
+
+  for (let streamer of streamers) {
+    models = {
+      ...models,
+      [streamer.name]: mongoose.model(`${streamer.name}_video`, facebookVideoSchema)
+    }
+  }
+
+  module.exports = models
