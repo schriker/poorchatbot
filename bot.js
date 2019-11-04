@@ -165,7 +165,7 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
                 }
                 const videoTwitch = new Video[name](facebookVideoData)
                 const savedVideo = await videoTwitch.save()
-                countChatData(savedVideo._id)
+                countChatData(savedVideo._id, name)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
                 isNvidia = false
             } catch (err) {
@@ -203,7 +203,7 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
                 }
                 const video = new Video[name](facebookVideoData)
                 const savedVideo = await video.save()
-                countChatData(savedVideo._id)
+                countChatData(savedVideo._id, name)
                 console.log(`Facebook Video Saved - ${facebookVideoData.title}`)
                 isFacebook = false
             } catch (error) {
