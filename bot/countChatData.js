@@ -1,9 +1,9 @@
 const Message = require('../models/message')
-const Video = require('../models/facebookVideo')
+const VideoModel = require('../models/facebookVideo')
 
 const countChatData = async (videoId, name) => {
   const chatData = []
-  const video = await FacebookVideo[name].findById(videoId)
+  const video = await VideoModel[name].findById(videoId)
   const messages = await Message[name].find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
   const duration = new Date(video.createdAt) - new Date(video.started)
 
