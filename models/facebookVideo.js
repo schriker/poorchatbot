@@ -22,4 +22,4 @@ const facebookVideoSchema = new Schema({
     }
   })
 
-  module.exports = mongoose.model('FacebookVideo', facebookVideoSchema)
+  module.exports = mongoose.model('wonziu_video', facebookVideoSchema)
