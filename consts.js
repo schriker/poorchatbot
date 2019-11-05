@@ -38,5 +38,11 @@ exports.streamers = [
     pageId: '1477765125857920',
     twitchId: '101879951',
     highLights: highLights
+  },
+  {
+    name: 'nexos',
+    pageId: '137607326365861',
+    twitchId: '31298665',
+    highLights: highLights
   }
 ]
