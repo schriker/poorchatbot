@@ -80,6 +80,8 @@ const bot = async () => {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
+                client.off('message', messagesBufferHandler)
+                saveMessagesBuffer(messagesBuffer)
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
                     isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
@@ -87,9 +89,7 @@ const bot = async () => {
                 videoHighLights = []
                 videoStartDate = date
                 console.log(`Stream: [Online] - ${date}`)
-                client.off('message', messagesBufferHandler)
                 client.on('message', messageHandler)
-                saveMessagesBuffer(messagesBuffer)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
                 client.on('message', messagesBufferHandler)
