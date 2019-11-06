@@ -10,7 +10,6 @@ const qs = require('querystring')
 const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
-const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
 
 const bot = async ({ name, highLights, pageId, twitchId }) => {
     let message = {}
@@ -19,7 +18,6 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
-    const messagesBuffer = []
     let videoHighLights = []
     let highLightsType = ''
     let highLightsCount = 0
@@ -45,16 +43,6 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
 
     const client = new Poorchat(options)
     await client.connect()
-
-    const messagesBufferHandler = async (IRCMessage) => {
-        const messageData = messageCreator(IRCMessage, new Date)
-        if (messagesBuffer.length > 30) {
-            messagesBuffer.shift()
-            messagesBuffer.push(messageData)            
-        } else {
-            messagesBuffer.push(messageData)
-        }
-    }
 
     const notifier = new ReconnectingWebSocket(`https://api.${name}.tv/streams`, [], {
         WebSocket: WebSocket
@@ -90,12 +78,9 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
                 videoHighLights = []
                 videoStartDate = date
                 console.log(`${name} is: [Online] - ${date}`)
-                client.off('message', messagesBufferHandler)
                 client.on('message', messageHandler)
-                saveMessagesBuffer(messagesBuffer, name)
             } else if (!currentStatus) {
                 console.log(`${name} is: [Offline] - ${date}`)
-                client.on('message', messagesBufferHandler)
                 client.off('message', messageHandler)
                 searchFacebookVideo()
             }
