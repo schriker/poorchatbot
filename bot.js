@@ -49,7 +49,6 @@ const bot = async () => {
     await client.connect()
 
     const messagesBufferHandler = async (IRCMessage) => {
-        console.log(messagesBuffer)
         const messageData = messageCreator(IRCMessage, new Date)
         if (messagesBuffer.length > 30) {
             messagesBuffer.shift()
