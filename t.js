@@ -24,7 +24,7 @@
 // const axios = require('axios')
 // const mongoose = require('mongoose')
 // const qs = require('querystring')
-// const config = require('./config.json')
+const config = require('./config.json')
 // const Message = require('./models/message')
 // const FacebookVideo = require('./models/facebookVideo')
 
@@ -232,21 +232,21 @@
     //     }
     // }, 2000)
 
-const WebSocket = require('ws')
-const ReconnectingWebSocket = require('reconnecting-websocket')
+// const WebSocket = require('ws')
+// const ReconnectingWebSocket = require('reconnecting-websocket')
 
-const ws = () => {
-  const notifier = new ReconnectingWebSocket('https://api.bonkol.tv/streams', [], {
-    WebSocket: WebSocket
-  })
+// const ws = () => {
+//   const notifier = new ReconnectingWebSocket('https://api.bonkol.tv/streams', [], {
+//     WebSocket: WebSocket
+//   })
 
-  notifier.addEventListener('open', () => {
-    const follow = JSON.stringify({ type: 'follow', name:'bonkol' })
-    notifier.send(follow)
-})
+//   notifier.addEventListener('open', () => {
+//     const follow = JSON.stringify({ type: 'follow', name:'bonkol' })
+//     notifier.send(follow)
+// })
 
-  notifier.addEventListener('message', async (response) => {
-    console.log(response)
+//   notifier.addEventListener('message', async (response) => {
+//     console.log(response)
     // const data = JSON.parse(response.data)
     // message = merge(message, data)
     // if (message.data.type === 'ping') {
@@ -278,7 +278,37 @@ const ws = () => {
     //         searchFacebookVideo(message.data.topic.text)
     //     }
     // }
+//   })
+// }
+
+// ws()
+
+const jimp = require('jimp')
+const axios = require('axios')
+
+const image = async (imageUrl) => {
+  const thumb = await jimp.read(imageUrl)
+  thumb.resize(320, 180)
+  await thumb.getBase64Async(thumb.getMIME())
+  .then(async (imgData) => {
+    await axios({
+      method: 'post',
+      url: 'https://api.imgur.com/3/upload',
+      headers: {
+        'Authorization': `Client-ID ${config.IMGUR_ID}`
+      },
+      data: {
+        image: imgData.split(',')[1]
+      }
+      })
+      .then((res) => {
+        const imgurLink = res.data.data.link
+        console.log(imgurLink)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   })
 }
 
-// ws()
+image('https://scontent-frt3-2.xx.fbcdn.net/v/t15.5256-10/70512631_2957575007599787_8450361984674693120_n.jpg?_nc_cat=110&_nc_oc=AQmb9qi3XKRYs_5YVLFDlMCAzRU8uC3D_-iK38Rg5Ky2ptxZQPV3WfAwwA9IhMgpBio&_nc_ht=scontent-frt3-2.xx&oh=55c64c42c586d17c4754352a9ded5d14&oe=5E176D81')

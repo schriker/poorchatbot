@@ -10,6 +10,7 @@ const qs = require('querystring')
 const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
+const thumbnailUploader = require('./bot/thumbnailUploader')
 
 const bot = async ({ name, highLights, pageId, twitchId }) => {
     let message = {}
@@ -188,6 +189,7 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
                 }
                 const video = new Video[name](facebookVideoData)
                 const savedVideo = await video.save()
+                thumbnailUploader(savedVideo._id, name, videoData.thumbnailURI)
                 countChatData(savedVideo._id, name)
                 console.log(`Facebook Video Saved - ${facebookVideoData.title}`)
                 isFacebook = false
