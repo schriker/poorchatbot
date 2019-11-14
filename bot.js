@@ -12,7 +12,7 @@ const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const thumbnailUploader = require('./bot/thumbnailUploader')
 
-const bot = async ({ name, highLights, pageId, twitchId }) => {
+const bot = async ({ name, website, highLights, pageId, twitchId }) => {
     let message = {}
     let isFacebook = false
     let isTwitch = false
@@ -45,7 +45,7 @@ const bot = async ({ name, highLights, pageId, twitchId }) => {
     const client = new Poorchat(options)
     await client.connect()
 
-    const notifier = new ReconnectingWebSocket(`https://api.${name}.tv/streams`, [], {
+    const notifier = new ReconnectingWebSocket(`https://api.${website}/streams`, [], {
         WebSocket: WebSocket
       })
     
