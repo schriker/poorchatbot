@@ -29,7 +29,8 @@ const wykopNotifier = async () => {
       const numbers = ['\u2460', '\u2461', '\u2462', '\u2463', '\u2464', '\u2465', '\u2466', '\u2467', '\u2468', '\u2469']
       videosFromLast24H.forEach((video, index) => {
         const platfrom = video.public ? 'facebook' : 'nvidia'
-        const splitTitle = video.title.split(/^\s*\n/gm)
+        const removeBottomPart = video.title.replace(/^\s*\n/gm, '').split('Śledzić nas można:')[0]
+        const splitTitle = removeBottomPart.split(/^\s*\n/gm)
         splitTitle.unshift('\n\n')
         const joinTitle = splitTitle.join('>')
         postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/${video.facebookId}?platform=facebook (${platfrom})(**${video.duration}**)`

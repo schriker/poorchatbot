@@ -21,14 +21,14 @@
 //   })
 // }
 
-const axios = require('axios')
-const mongoose = require('mongoose')
-const qs = require('querystring')
-const config = require('./config.json')
-const Message = require('./models/message')
-const FacebookVideo = require('./models/facebookVideo')
+// const axios = require('axios')
+// const mongoose = require('mongoose')
+// const qs = require('querystring')
+// const config = require('./config.json')
+// const Message = require('./models/message')
+// const FacebookVideo = require('./models/facebookVideo')
 
-const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
+// const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
 
 // const date = () => {
 //   mongoose.connect(mongoHost, {
@@ -71,46 +71,46 @@ const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB
 
 // date()
 
-const chart = () => {
+// const chart = () => {
 
-  mongoose.connect(mongoHost, {
-        useNewUrlParser: true,
-        useFindAndModify: false,
-        useUnifiedTopology: true
-        })
-        .then(async () => {
-          console.log('Contected!')
+//   mongoose.connect(mongoHost, {
+//         useNewUrlParser: true,
+//         useFindAndModify: false,
+//         useUnifiedTopology: true
+//         })
+//         .then(async () => {
+//           console.log('Contected!')
 
-          const videos = await FacebookVideo.find().sort({createdAt: -1})
+//           const videos = await FacebookVideo.find().sort({createdAt: -1})
 
-          for (let video of videos) {
-            const chatData = []
-            const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
-            const duration = new Date(video.createdAt) - new Date(video.started) // ms
+//           for (let video of videos) {
+//             const chatData = []
+//             const messages = await Message.find({ createdAt: { $gt: video.started, $lt: video.createdAt } }).sort({ createdAt: 'asc' })
+//             const duration = new Date(video.createdAt) - new Date(video.started) // ms
   
-            for (let i = 0; i < duration; i += 60000 ) {
-              const messagesCount = messages.filter((message) => {
-                const messageTime = new Date(message.createdAt) - new Date(video.started)
-                if (messageTime > i && messageTime < i + 60000) {
-                  return true
-                } else {
-                  return false
-                }
-              })
-              chatData.push(messagesCount.length)   
-            }
-            video.chatData = chatData
-            await video.save()
-            console.log(video._id)
-          }
-          console.log('Done!')      
-        })
-        .catch(err => {
-          console.log(err)
-        })
-}
+//             for (let i = 0; i < duration; i += 60000 ) {
+//               const messagesCount = messages.filter((message) => {
+//                 const messageTime = new Date(message.createdAt) - new Date(video.started)
+//                 if (messageTime > i && messageTime < i + 60000) {
+//                   return true
+//                 } else {
+//                   return false
+//                 }
+//               })
+//               chatData.push(messagesCount.length)   
+//             }
+//             video.chatData = chatData
+//             await video.save()
+//             console.log(video._id)
+//           }
+//           console.log('Done!')      
+//         })
+//         .catch(err => {
+//           console.log(err)
+//         })
+// }
 
-chart()
+// chart()
 
 
 // const highLights = [
@@ -231,3 +231,22 @@ chart()
     //         console.log('Facebook interval error!')
     //     }
     // }, 2000)
+
+
+
+    const title = `Stacja 17:00 - Zakon upada i sobie głupiy ryj rozwala.
+
+    Śledzić nas można:
+    http://jadisco.pl - to jest małe centrum sterowania światem.
+    https://www.facebook.com/StrumienieZRuczaju - proszę tu klikać w dzwoneczek
+    suchykanal@gmail.com - kontakt
+    http://steamcommunity.com/groups/Szpara - grupa steamowa, też ma powiadomienia
+    https://twitter.com/wonziu - to mój intymny twitter
+    https://twitter.com/ruczajircpower - a to twitter, który informuje o tym kiedy i co dzieje się na strumieniu. Realnie to najlepiej działający powiadamiacz.`
+
+    const removeBottomPart = title.replace(/^\s*\n/gm, '').split('Śledzić nas można:')[0]
+    const splitTitle = removeBottomPart.split(/^\s*\n/gm)
+    splitTitle.unshift('\n\n')
+    const joinTitle = splitTitle.join('>')
+
+    console.log(joinTitle)
