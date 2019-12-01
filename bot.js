@@ -50,6 +50,25 @@ const bot = async () => {
     const client = new Poorchat(options)
     await client.connect()
 
+    const botComandsHandler = async (IRCMessage) => {
+        const messageData = messageCreator(IRCMessage)
+        const message = new Message(messageData)
+        const isComand = /\bJarchiwum\b/.test(message.body)
+
+        if (isComand && !botTimeout) {
+            try {
+                botTimeout = true
+                const lastVideo = await FacebookVideo.findOne().sort({ createdAt: 'desc' })
+                const date = moment(lastVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
+                const botMessage = `${message.author}, Ostatni strumyk - <https://jarchiwum.pl/wonziu/${lastVideo.facebookId}?platform=facebook> - ${date}`
+                client.say(botMessage)
+            } catch(err) {
+                console.log(err)
+            }
+            setTimeout(() => botTimeout = false, 300000)
+        }
+    }
+
     const messagesBufferHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage, new Date)
         if (messagesBuffer.length > 30) {
@@ -65,6 +84,7 @@ const bot = async () => {
     })
     
     console.log('Working...')
+    client.on('message', botComandsHandler)
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
@@ -103,7 +123,6 @@ const bot = async () => {
     const messageHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage)
         const message = new Message(messageData)
-        const isComand = /\bJarchiwum\b/.test(message.body)
 
         try {
             message.save()
@@ -138,19 +157,6 @@ const bot = async () => {
                     }, 10000)
                 }
             }
-        }
-
-        if (isComand && !botTimeout) {
-            try {
-                botTimeout = true
-                const lastVideo = await FacebookVideo.findOne().sort({ createdAt: 'desc' })
-                const date = moment(lastVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
-                const botMessage = `${message.author}, Ostatni strumyk - <https://jarchiwum.pl/wonziu/${lastVideo.facebookId}?platform=facebook> - ${date}`
-                client.say(botMessage)
-            } catch(err) {
-                console.log(err)
-            }
-            setTimeout(() => botTimeout = false, 300000)
         }
     }
 
