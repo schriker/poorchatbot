@@ -13,6 +13,7 @@ const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
 const facebookVideoDownloader = require('./facebookVideoDownloader')
+const moment = require('moment')
 
 const bot = async () => {
     let message = {}
@@ -28,6 +29,7 @@ const bot = async () => {
     let highLightsTime = null
     let highLightsTimer = null
     let totalMessagesCount = 0
+    let botTimeout = false
     
     const options = {
         websocket: 'https://irc.poorchat.net/',
@@ -101,6 +103,7 @@ const bot = async () => {
     const messageHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage)
         const message = new Message(messageData)
+        const isComand = /\bJarchiwum\b/.test(message.body)
 
         try {
             message.save()
@@ -135,6 +138,19 @@ const bot = async () => {
                     }, 10000)
                 }
             }
+        }
+
+        if (isComand && !botTimeout) {
+            try {
+                botTimeout = true
+                const lastVideo = await FacebookVideo.findOne().sort({ createdAt: 'desc' })
+                const date = moment(lastVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
+                const botMessage = `${message.author}, Ostatni strumyk - <https://jarchiwum.pl/wonziu/${lastVideo.facebookId}?platform=facebook> - ${date}`
+                client.say(botMessage)
+            } catch(err) {
+                console.log(err)
+            }
+            setTimeout(() => botTimeout = false, 300000)
         }
     }
 
