@@ -60,7 +60,6 @@ const bot = async ({ name, website, highLights, pageId, twitchId }) => {
                         break
                     default: streamerUrl = name
                 }
-                console.log(streamerUrl)
                 botTimeout = true
                 const lastVideo = await Video[name].findOne().sort({ createdAt: 'desc' })
                 const date = moment(lastVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
