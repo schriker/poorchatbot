@@ -11,6 +11,7 @@ const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const thumbnailUploader = require('./bot/thumbnailUploader')
+const moment = require('moment')
 
 const bot = async ({ name, website, highLights, pageId, twitchId }) => {
     let message = {}
@@ -25,6 +26,7 @@ const bot = async ({ name, website, highLights, pageId, twitchId }) => {
     let highLightsTime = null
     let highLightsTimer = null
     let totalMessagesCount = 0
+    let botTimeout = false
     
     const options = {
         websocket: 'https://irc.poorchat.net/',
@@ -45,6 +47,32 @@ const bot = async ({ name, website, highLights, pageId, twitchId }) => {
     const client = new Poorchat(options)
     await client.connect()
 
+    const botComandsHandler = async (IRCMessage) => {
+        const messageData = messageCreator(IRCMessage)
+        const message = new Message[name](messageData)
+        const isComand = /\bJarchiwum\b/.test(message.body)
+
+        if (isComand && !botTimeout) {
+            try {
+                let streamerUrl = ''
+                switch (name) {
+                    case 'luceklive': streamerUrl = 'mowpoluckuv12'
+                        break
+                    default: streamerUrl = name
+                }
+                console.log(streamerUrl)
+                botTimeout = true
+                const lastVideo = await Video[name].findOne().sort({ createdAt: 'desc' })
+                const date = moment(lastVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
+                const botMessage = `${message.author}, Ostatni strumyk - <https://jarchiwum.pl/${streamerUrl}/${lastVideo.facebookId}?platform=facebook> - ${date}`
+                client.say(botMessage)
+            } catch(err) {
+                console.log(err)
+            }
+            setTimeout(() => botTimeout = false, 300000)
+        }
+    }
+
     const notifier = new ReconnectingWebSocket(`https://api.${website}/streams`, [], {
         WebSocket: WebSocket
       })
@@ -55,6 +83,7 @@ const bot = async ({ name, website, highLights, pageId, twitchId }) => {
     })
     
     console.log('Working...')
+    client.on('message', botComandsHandler)
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
