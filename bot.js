@@ -84,7 +84,7 @@ const bot = async () => {
     })
     
     console.log('Working...')
-    client.on('message', botComandsHandler)
+    // client.on('message', botComandsHandler)
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
