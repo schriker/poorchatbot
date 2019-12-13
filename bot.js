@@ -185,7 +185,8 @@ const bot = async () => {
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
-                setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
+                // setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
+                facebookVideoDownloader(savedVideo)
                 isNvidia = false
             } catch (err) {
                 console.log(err)
@@ -224,7 +225,8 @@ const bot = async () => {
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
                 console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
-                setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
+                // setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
+                facebookVideoDownloader(savedVideo)
                 isFacebook = false
             } catch (error) {
                 console.log(error)

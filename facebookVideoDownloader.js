@@ -8,7 +8,8 @@ const config = require('./config.json')
 const facebookVideoDownloader = (video) => {
     let comand
     if (video.public === true) {
-      comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
+      // comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
+      comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
     } else if (video.public === false) {
       comand = `youtube-dl ${video.url} -f "best[ext=mp4]" -o "${video.facebookId}.%(ext)s"`
     }
@@ -16,7 +17,8 @@ const facebookVideoDownloader = (video) => {
     async (error, stdout, stderr) => {
       try {
         if (error) {
-            console.error(`exec error: ${error}`)
+            console.error(`Comand error: ${error}`)
+            setTimeout(() => facebookVideoDownloader(video), 120000)
             return
           }
         const youTubeVideo = await youtubeUpload(`${video.facebookId}.mp4`, video)
