@@ -3,7 +3,6 @@ const config = require('./config.json')
 const FacebookVideo = require('./models/facebookVideo')
 const WebSocket = require('ws')
 const ReconnectingWebSocket = require('reconnecting-websocket')
-const axios = require('axios')
 
 const wykopNotifier = async () => {
   const lt = new Date(new Date(new Date().setUTCHours(22, 0, 0, 0)).getTime() - 24 * 60 * 60 * 1000)
@@ -29,7 +28,7 @@ const wykopNotifier = async () => {
       const numbers = ['\u2460', '\u2461', '\u2462', '\u2463', '\u2464', '\u2465', '\u2466', '\u2467', '\u2468', '\u2469']
       videosFromLast24H.forEach((video, index) => {
         const platfrom = video.public ? 'facebook' : 'nvidia'
-        const removeBottomPart = video.title.replace(/^\s*\n/gm, '').split('Śledzić nas można:')[0]
+        const removeBottomPart = video.title.replace(/^\s*\n/gm, '').split('Jak ktoś jest nowy')[0]
         const splitTitle = removeBottomPart.split(/^\s*\n/gm)
         splitTitle.unshift('\n\n')
         const joinTitle = splitTitle.join('>')
@@ -44,9 +43,6 @@ const wykopNotifier = async () => {
       
       \n#wonziu #archiwumzruczaju
       `
-
-      const facebookData = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
-      const videoData = JSON.parse(facebookData.data.split('for (;;);')[1]).payload.page.video_data[0]
 
       const wykopNotifier = new Wykop({
         secret: config.WYKOP.SECRET,
@@ -66,7 +62,7 @@ const wykopNotifier = async () => {
         namedParams: null,
         postParams: {
           body: postBodyTemplate,
-          embed: videoData.thumbnailURI
+          embed: videosFromLast24H[0].thumbnail
         }
       })
       .then(() => {
