@@ -14,6 +14,7 @@ const countChatData = require('./bot/countChatData')
 const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
 const facebookVideoDownloader = require('./facebookVideoDownloader')
 const youTubeLinkValidation = require('./helpers/youTubeLinkValidation')
+const puppeteer = require('puppeteer')
 
 const bot = async () => {
     let message = {}
@@ -53,6 +54,7 @@ const bot = async () => {
         const messageData = messageCreator(IRCMessage)
         const isPM = messageData.channel === 'Jarchiwum'
         const comand = messageData.body.match(/^\!(\b\w+\b)\s(\b\w+\b)/)
+        const ublock = './uBlock0.chromium'
 
         if (isPM && comand) {
             switch (comand[1]) {
@@ -63,7 +65,22 @@ const bot = async () => {
                             if (link) {
                                 const isYouTube = youTubeLinkValidation(link)
                                 if (isYouTube) {
-                                    client.pm(messageData.author, 'Utwór dodany do listy!')
+                                    try {
+                                        const browser = await puppeteer.launch(
+                                            {
+                                                headless: false,
+                                                args: [`--disable-extensions-except=${ublock}`, `--load-extension=${ublock}`]
+                                            })
+                                        const page = await browser.newPage()
+                                        await page.goto('https://www.youtube.com/watch?v=muSNl2AB46s')
+                                        const element = await page.$('.ytp-time-duration')
+                                        const time = await page.evaluate(element => element.textContent, element)
+                                        console.log(time)
+                                        await browser.close()
+                                        client.pm(messageData.author, 'Utwór dodany do listy!')
+                                    } catch (error) {
+                                        console.log('Pupeteer err:', error)
+                                    }
                                 }
                             }
                            break 
@@ -189,7 +206,6 @@ const bot = async () => {
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
-                // setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 facebookVideoDownloader(savedVideo)
                 isNvidia = false
             } catch (err) {
@@ -229,7 +245,6 @@ const bot = async () => {
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
                 console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
-                // setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 facebookVideoDownloader(savedVideo)
                 isFacebook = false
             } catch (error) {
