@@ -69,7 +69,11 @@ const bot = async () => {
                                         const browser = await puppeteer.launch(
                                             {
                                                 headless: false,
-                                                args: [`--disable-extensions-except=${ublock}`, `--load-extension=${ublock}`]
+                                                args: [
+                                                    `--disable-extensions-except=${ublock}`, 
+                                                    `--load-extension=${ublock}`,
+                                                    '--no-sandbox'
+                                                ]
                                             })
                                         const page = await browser.newPage()
                                         await page.goto('https://www.youtube.com/watch?v=muSNl2AB46s')
