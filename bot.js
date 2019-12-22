@@ -72,7 +72,8 @@ const bot = async () => {
                                                 args: [
                                                     `--disable-extensions-except=${ublock}`, 
                                                     `--load-extension=${ublock}`,
-                                                    '--no-sandbox'
+                                                    '--no-sandbox',
+                                                    '--disable-setuid-sandbox'
                                                 ]
                                             })
                                         const page = await browser.newPage()
