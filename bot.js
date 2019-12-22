@@ -13,7 +13,7 @@ const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
 const facebookVideoDownloader = require('./facebookVideoDownloader')
-const moment = require('moment')
+const youTubeLinkValidation = require('./helpers/youTubeLinkValidation')
 
 const bot = async () => {
     let message = {}
@@ -29,12 +29,11 @@ const bot = async () => {
     let highLightsTime = null
     let highLightsTimer = null
     let totalMessagesCount = 0
-    let botTimeout = false
     
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
-        channel: '#jadisco',
+        channel: '#jadisco2',
         login: config.USER_LOGIN,
         password: config.USER_PASSWORD,
         cap: [
@@ -52,20 +51,25 @@ const bot = async () => {
 
     const botComandsHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage)
-        const message = new Message(messageData)
-        const isComand = /\bJarchiwum\b/.test(message.body)
+        const isPM = messageData.channel === 'Jarchiwum'
+        const comand = messageData.body.match(/^\!(\b\w+\b)\s(\b\w+\b)/)
 
-        if (isComand && !botTimeout) {
-            try {
-                botTimeout = true
-                const lastVideo = await FacebookVideo.findOne().sort({ createdAt: 'desc' })
-                const date = moment(lastVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
-                const botMessage = `${message.author}, Ostatni strumyk - <https://jarchiwum.pl/wonziu/${lastVideo.facebookId}?platform=facebook> - ${date}`
-                client.say(botMessage)
-            } catch(err) {
-                console.log(err)
+        if (isPM && comand) {
+            switch (comand[1]) {
+                case 'song':
+                    switch (comand[2]) {
+                        case 'request':
+                            const [ link ]= messageData.body.match(/\bhttps?:\/\/\S+/)
+                            if (link) {
+                                const isYouTube = youTubeLinkValidation(link)
+                                if (isYouTube) {
+                                    client.pm(messageData.author, 'Utwór dodany do listy!')
+                                }
+                            }
+                           break 
+                    }
+                break
             }
-            setTimeout(() => botTimeout = false, 300000)
         }
     }
 
@@ -84,7 +88,7 @@ const bot = async () => {
     })
     
     console.log('Working...')
-    // client.on('message', botComandsHandler)
+    client.on('message', botComandsHandler)
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
