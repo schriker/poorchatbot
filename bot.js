@@ -12,9 +12,8 @@ const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
+const botComandsHandler = require('./bot/comandsHandler')
 const facebookVideoDownloader = require('./facebookVideoDownloader')
-const youTubeLinkValidation = require('./helpers/youTubeLinkValidation')
-const puppeteer = require('puppeteer')
 
 const bot = async () => {
     let message = {}
@@ -34,7 +33,7 @@ const bot = async () => {
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
-        channel: '#jadisco2',
+        channel: '#jarchiwum',
         login: config.USER_LOGIN,
         password: config.USER_PASSWORD,
         cap: [
@@ -49,51 +48,6 @@ const bot = async () => {
 
     const client = new Poorchat(options)
     await client.connect()
-
-    const botComandsHandler = async (IRCMessage) => {
-        const messageData = messageCreator(IRCMessage)
-        const isPM = messageData.channel === 'Jarchiwum'
-        const comand = messageData.body.match(/^\!(\b\w+\b)\s(\b\w+\b)/)
-        const ublock = './uBlock0.chromium'
-
-        if (isPM && comand) {
-            switch (comand[1]) {
-                case 'song':
-                    switch (comand[2]) {
-                        case 'request':
-                            const [ link ]= messageData.body.match(/\bhttps?:\/\/\S+/)
-                            if (link) {
-                                const isYouTube = youTubeLinkValidation(link)
-                                if (isYouTube) {
-                                    try {
-                                        const browser = await puppeteer.launch(
-                                            {
-                                                headless: false,
-                                                args: [
-                                                    `--disable-extensions-except=${ublock}`, 
-                                                    `--load-extension=${ublock}`,
-                                                    '--no-sandbox',
-                                                    '--disable-setuid-sandbox'
-                                                ]
-                                            })
-                                        const page = await browser.newPage()
-                                        await page.goto('https://www.youtube.com/watch?v=muSNl2AB46s')
-                                        const element = await page.$('.ytp-time-duration')
-                                        const time = await page.evaluate(element => element.textContent, element)
-                                        console.log(time)
-                                        await browser.close()
-                                        client.pm(messageData.author, 'Utwór dodany do listy!')
-                                    } catch (error) {
-                                        console.log('Pupeteer err:', error)
-                                    }
-                                }
-                            }
-                           break 
-                    }
-                break
-            }
-        }
-    }
 
     const messagesBufferHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage, new Date)
@@ -110,7 +64,7 @@ const bot = async () => {
     })
     
     console.log('Working...')
-    client.on('message', botComandsHandler)
+    client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
