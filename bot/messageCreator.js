@@ -1,5 +1,6 @@
 const messageCreator = (IRCMessage, date) => {
   const messageBody = IRCMessage.params[1]
+  const messageChannel  = IRCMessage.params[0]
   let subscription = 0
   let subscriptiongifter = 0
 
@@ -15,6 +16,7 @@ const messageCreator = (IRCMessage, date) => {
 
   const messageData = {
       type: IRCMessage.command,
+      channel: messageChannel,
       author: author,
       body: messageBody,
       color: IRCMessage.tags['poorchat.net/color'] || '',

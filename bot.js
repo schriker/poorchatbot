@@ -12,8 +12,8 @@ const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
+const botComandsHandler = require('./bot/comandsHandler')
 const facebookVideoDownloader = require('./facebookVideoDownloader')
-const moment = require('moment')
 
 const bot = async () => {
     let message = {}
@@ -29,12 +29,11 @@ const bot = async () => {
     let highLightsTime = null
     let highLightsTimer = null
     let totalMessagesCount = 0
-    let botTimeout = false
     
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
-        channel: '#jadisco',
+        channel: '#jarchiwum',
         login: config.USER_LOGIN,
         password: config.USER_PASSWORD,
         cap: [
@@ -49,25 +48,6 @@ const bot = async () => {
 
     const client = new Poorchat(options)
     await client.connect()
-
-    const botComandsHandler = async (IRCMessage) => {
-        const messageData = messageCreator(IRCMessage)
-        const message = new Message(messageData)
-        const isComand = /\bJarchiwum\b/.test(message.body)
-
-        if (isComand && !botTimeout) {
-            try {
-                botTimeout = true
-                const lastVideo = await FacebookVideo.findOne().sort({ createdAt: 'desc' })
-                const date = moment(lastVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
-                const botMessage = `${message.author}, Ostatni strumyk - <https://jarchiwum.pl/wonziu/${lastVideo.facebookId}?platform=facebook> - ${date}`
-                client.say(botMessage)
-            } catch(err) {
-                console.log(err)
-            }
-            setTimeout(() => botTimeout = false, 300000)
-        }
-    }
 
     const messagesBufferHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage, new Date)
@@ -84,7 +64,7 @@ const bot = async () => {
     })
     
     console.log('Working...')
-    // client.on('message', botComandsHandler)
+    client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
@@ -185,7 +165,6 @@ const bot = async () => {
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
-                // setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 facebookVideoDownloader(savedVideo)
                 isNvidia = false
             } catch (err) {
@@ -225,7 +204,6 @@ const bot = async () => {
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
                 console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
-                // setTimeout(() => facebookVideoDownloader(savedVideo), 1800000)
                 facebookVideoDownloader(savedVideo)
                 isFacebook = false
             } catch (error) {

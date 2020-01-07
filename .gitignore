@@ -1,4 +1,5 @@
 node_modules
 config.json
+config-copy.json
 og.js
 *.mp4

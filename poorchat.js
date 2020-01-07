@@ -41,6 +41,11 @@ class Poorchat extends EventEmitter {
         this.ws.send(encodedMessage)
     }
 
+    pm(channel, data) {
+        const encodedMessage = this.messageEncode(`PRIVMSG ${channel} :${data}`)
+        this.ws.send(encodedMessage)
+    }
+
     connect() {
         return new Promise((resolve) => {
             console.log('Connecting to IRC...')
