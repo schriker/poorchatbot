@@ -2,10 +2,9 @@ const youTubeLinkValidation = require('../helpers/youTubeLinkValidation')
 const messageCreator = require('./messageCreator')
 const axios = require('axios')
 const config = require('../config.json')
-const util = require('util')
 
-const PLAYLIST_ID = '5e05f3066b4015735b357abf'
-const ROOM_ID = '5e05f2746b4015735b357abd'
+const PLAYLIST_ID = '5e1735147a865527f00e0715'
+const ROOM_ID = '5e17348e7a865527f00e0713'
 
 const gqlAPI = new axios.create({
   baseURL: 'https://apiradio.jarchiwum.pl/',
