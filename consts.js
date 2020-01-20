@@ -40,12 +40,13 @@ exports.streamers = [
   //   twitchId: '101879951',
   //   highLights: highLights
   // },
-  // {
-  //   name: 'nexos',
-  //   pageId: '137607326365861',
-  //   twitchId: '31298665',
-  //   highLights: highLights
-  // },
+  {
+    name: 'nexos',
+    website: 'nexos.tv',
+    pageId: '137607326365861',
+    twitchId: '31298665',
+    highLights: highLights
+  },
   {
     name: 'luceklive',
     website: 'luceklive.pl',
