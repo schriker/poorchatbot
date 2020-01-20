@@ -61,7 +61,7 @@ class Poorchat extends EventEmitter {
                 const message = this.readMessage(data)
 
                 if (message.command === '422') {
-                this.sendMessage(`PRIVMSG Poorchat :LOGIN ${this.login} ${this.password}`)
+                // this.sendMessage(`PRIVMSG Poorchat :LOGIN ${this.login} ${this.password}`)
                 this.sendMessage(`JOIN ${this.channel}`)
                 }
     

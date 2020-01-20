@@ -43,7 +43,7 @@ const bot = async () => {
             'CAP REQ :poorchat.net/subscriptiongifter',
             'CAP REQ :multi-prefix'
         ],
-        debug: false
+        debug: true
     }
 
     const client = new Poorchat(options)
@@ -64,7 +64,7 @@ const bot = async () => {
     })
     
     console.log('Working...')
-    client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
+    // client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
