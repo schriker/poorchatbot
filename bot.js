@@ -175,6 +175,7 @@ const bot = async () => {
             try {
                 const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
                 const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
+                const facebookTitle = videoData.title.split('\n').filter(e => e !== '').join(' ')
 
                 const timeResponse = await axios({
                     url: `https://www.facebook.com/video/tahoe/async/${videoData.videoID}/?payloadtype=secondary`,
@@ -192,7 +193,7 @@ const bot = async () => {
                 facebookVideoData = {
                     facebookId: videoData.videoID,
                     url: videoData.videoURL,
-                    title: videoData.title || videoTitle,
+                    title: facebookTitle || videoTitle,
                     views: 0,
                     duration: msToTime(new Date() - videoStartDate),
                     started: videoTimeStamp,
