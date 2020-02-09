@@ -196,7 +196,7 @@ const bot = async () => {
                     title: facebookTitle || videoTitle,
                     views: 0,
                     duration: msToTime(new Date() - videoStartDate),
-                    started: videoTimeStamp,
+                    started: videoStartDate, // videoTimeStamp - use it when need to donwload start time from facebook not from notifications
                     thumbnail: videoData.thumbnailURI,
                     public: true,
                     highLights: videoHighLights

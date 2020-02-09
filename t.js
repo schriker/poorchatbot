@@ -1,17 +1,3 @@
-const message = `Dobry wieczór,
-
-zapraszam na Phoenix Point i punia na noc
-
-Uszanowanko...`
-
-const splited = message.split('\n').filter(e => e !== '').join(' ')
-
-console.log(splited)
-
-
-
-
-
 // const moment = require('moment')
 
 // const downloader = async () => {
