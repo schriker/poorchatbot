@@ -43,7 +43,7 @@ const bot = async () => {
             'CAP REQ :poorchat.net/subscriptiongifter',
             'CAP REQ :multi-prefix'
         ],
-        debug: true
+        debug: false
     }
 
     const client = new Poorchat(options)
