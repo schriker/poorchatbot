@@ -33,7 +33,7 @@ const bot = async () => {
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
-        channel: '#jadisco2',
+        channel: '#jadisco',
         login: config.USER_LOGIN,
         password: config.USER_PASSWORD,
         cap: [
