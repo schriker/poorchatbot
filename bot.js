@@ -33,7 +33,7 @@ const bot = async () => {
     const options = {
         websocket: 'https://irc.poorchat.net/',
         irc: 'irc.poorchat.net',
-        channel: '#jadisco',
+        channel: '#jadisco2',
         login: config.USER_LOGIN,
         password: config.USER_PASSWORD,
         cap: [
@@ -64,7 +64,7 @@ const bot = async () => {
     })
     
     console.log('Working...')
-    // client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
+    client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
