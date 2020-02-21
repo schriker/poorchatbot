@@ -46,60 +46,6 @@ const bot = async () => {
         debug: false
     }
 
-    const client = new Poorchat(options)
-    await client.connect()
-
-    const messagesBufferHandler = async (IRCMessage) => {
-        const messageData = messageCreator(IRCMessage, new Date)
-        if (messagesBuffer.length > 30) {
-            messagesBuffer.shift()
-            messagesBuffer.push(messageData)            
-        } else {
-            messagesBuffer.push(messageData)
-        }
-    }
-
-    const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
-        WebSocket: WebSocket
-    })
-    
-    console.log('Working...')
-    client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
-
-    notifier.addEventListener('message', async (response) => {
-        const data = JSON.parse(response.data)
-        message = merge(message, data)
-        if (message.data.type === 'ping') {
-            const pong = JSON.stringify({ type: 'pong' })
-            notifier.send(pong)
-            return
-        } 
-
-        const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
-
-        if (currentStatus !== newMessageStatus) {
-            const date = new Date()
-            currentStatus = newMessageStatus
-            if (currentStatus) {
-                client.off('message', messagesBufferHandler)
-                saveMessagesBuffer(messagesBuffer)
-                isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
-                if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
-                    isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
-                }
-                videoHighLights = []
-                videoStartDate = date
-                console.log(`Stream: [Online] - ${date}`)
-                client.on('message', messageHandler)
-            } else if (!currentStatus) {
-                console.log(`Stream: [Offline] - ${date}`)
-                client.on('message', messagesBufferHandler)
-                client.off('message', messageHandler)
-                searchFacebookVideo(message.data.topic.text)
-            }
-        }
-    })
-
     const messageHandler = async (IRCMessage) => {
         const messageData = messageCreator(IRCMessage)
         const message = new Message(messageData)
@@ -139,6 +85,61 @@ const bot = async () => {
             }
         }
     }
+
+    const messagesBufferHandler = async (IRCMessage) => {
+        const messageData = messageCreator(IRCMessage, new Date)
+        if (messagesBuffer.length > 30) {
+            messagesBuffer.shift()
+            messagesBuffer.push(messageData)            
+        } else {
+            messagesBuffer.push(messageData)
+        }
+    }
+
+    const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
+        WebSocket: WebSocket
+    })
+
+    const client = new Poorchat(options)
+    await client.connect()
+    
+    console.log('Working...')
+    client.on('message', messageHandler)
+    // client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
+
+    notifier.addEventListener('message', async (response) => {
+        const data = JSON.parse(response.data)
+        message = merge(message, data)
+        if (message.data.type === 'ping') {
+            const pong = JSON.stringify({ type: 'pong' })
+            notifier.send(pong)
+            return
+        } 
+
+        const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
+
+        if (currentStatus !== newMessageStatus) {
+            const date = new Date()
+            currentStatus = newMessageStatus
+            if (currentStatus) {
+                client.off('message', messagesBufferHandler)
+                saveMessagesBuffer(messagesBuffer)
+                isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
+                if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
+                    isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
+                }
+                videoHighLights = []
+                videoStartDate = date
+                console.log(`Stream: [Online] - ${date}`)
+                // client.on('message', messageHandler)
+            } else if (!currentStatus) {
+                console.log(`Stream: [Offline] - ${date}`)
+                // client.on('message', messagesBufferHandler)
+                // client.off('message', messageHandler)
+                searchFacebookVideo(message.data.topic.text)
+            }
+        }
+    })
 
     const searchFacebookVideo = async (videoTitle) => {
         if (videoStartDate && isNvidia) {
