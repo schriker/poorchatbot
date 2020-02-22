@@ -122,8 +122,8 @@ const bot = async () => {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
-                client.off('message', messagesBufferHandler)
-                saveMessagesBuffer(messagesBuffer)
+                // client.off('message', messagesBufferHandler)
+                // saveMessagesBuffer(messagesBuffer)
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
                     isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
