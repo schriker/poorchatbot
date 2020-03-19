@@ -4,6 +4,7 @@ const { highLights }  = require('./consts')
 const ReconnectingWebSocket = require('reconnecting-websocket')
 const Message = require('./models/message')
 const FacebookVideo = require('./models/facebookVideo')
+const Mode = require('./models/mode')
 const config = require('./config.json')
 const merge = require('lodash.merge')
 const axios = require('axios')
@@ -96,6 +97,23 @@ const bot = async () => {
         }
     }
 
+    const modeHandler = async (IRCMessage) => {
+        const [ channel, mode, user ] = IRCMessage.params
+        const modeData = {
+            channel: channel,
+            mode: mode,
+            user: user.split('\r\n')[0]
+        }
+        const userMode = await Mode.findOne({ user: modeData.user })
+        if (userMode) {
+            userMode.mode = modeData.mode
+            userMode.save()
+        } else {
+            newUserMode = new Mode(modeData)
+            newUserMode.save()
+        }
+    }
+
     const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
         WebSocket: WebSocket
     })
@@ -105,6 +123,7 @@ const bot = async () => {
     
     console.log('Working...')
     client.on('message', messageHandler)
+    client.on('mode', modeHandler)
     // client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
