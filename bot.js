@@ -99,18 +99,20 @@ const bot = async () => {
 
     const modeHandler = async (IRCMessage) => {
         const [ channel, mode, user ] = IRCMessage.params
-        const modeData = {
-            channel: channel,
-            mode: mode,
-            user: user.split('\r\n')[0]
-        }
-        const userMode = await Mode.findOne({ user: modeData.user })
-        if (userMode) {
-            userMode.mode = modeData.mode
-            userMode.save()
-        } else {
-            newUserMode = new Mode(modeData)
-            newUserMode.save()
+        if (user) {
+            const modeData = {
+                channel: channel,
+                mode: mode,
+                user: user.split('\r\n')[0]
+            }
+            const userMode = await Mode.findOne({ user: modeData.user })
+            if (userMode) {
+                userMode.mode = modeData.mode
+                userMode.save()
+            } else {
+                newUserMode = new Mode(modeData)
+                newUserMode.save()
+            }
         }
     }
 
