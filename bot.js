@@ -97,38 +97,41 @@ const bot = async () => {
         }
     }
 
-    const modeHandler = async (IRCMessage) => {
-        const [ channel, mode, user ] = IRCMessage.params
-
-        let modesArray = mode.split('')
-
-        if (user) {
-            const userMode = await Mode.findOne({ user: user })
-            if (userMode) {
-                let concatModes = [...new Set(userMode.mode.concat(modesArray))]
-                console.log(modesArray ,concatModes)
-                if (modesArray[0] === '-') {
-                    concatModes = concatModes.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
+    const modeHandler = (IRCMessage) => {
+        return new Promise(async resolve => {
+            const [ channel, mode, user ] = IRCMessage.params
+    
+            let modesArray = mode.split('')
+    
+            if (user) {
+                const userMode = await Mode.findOne({ user: user })
+                if (userMode) {
+                    let concatModes = [...new Set(userMode.mode.concat(modesArray))]
+                    if (modesArray[0] === '-') {
+                        concatModes = concatModes.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
+                    } else {
+                        concatModes = concatModes.filter(mode => mode !== modesArray[0])
+                    }
+                    userMode.mode = concatModes
+                    await userMode.save()
+                    resolve()
                 } else {
-                    concatModes = concatModes.filter(mode => mode !== modesArray[0])
+                    if (modesArray[0] === '-') {
+                        modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
+                    } else {
+                        modesArray = modesArray.filter(mode => mode !== modesArray[0])
+                    }
+                    const modeData = {
+                        channel: channel,
+                        mode: modesArray,
+                        user: user.split('\r\n')[0]
+                    }
+                    newUserMode = new Mode(modeData)
+                    await newUserMode.save()
+                    resolve()
                 }
-                userMode.mode = concatModes
-                await userMode.save()
-            } else {
-                if (modesArray[0] === '-') {
-                    modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
-                } else {
-                    modesArray = modesArray.filter(mode => mode !== modesArray[0])
-                }
-                const modeData = {
-                    channel: channel,
-                    mode: modesArray,
-                    user: user.split('\r\n')[0]
-                }
-                newUserMode = new Mode(modeData)
-                await newUserMode.save()
             }
-        }
+        })
     }
 
     const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
@@ -140,7 +143,7 @@ const bot = async () => {
     
     console.log('Working...')
     client.on('message', messageHandler)
-    client.on('mode', modeHandler)
+    client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage))
     // client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
