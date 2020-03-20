@@ -113,7 +113,7 @@ const bot = async () => {
                     concatModes = concatModes.filter(mode => mode !== modesArray[0])
                 }
                 userMode.mode = concatModes
-                userMode.save()
+                await userMode.save()
             } else {
                 if (modesArray[0] === '-') {
                     modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
@@ -126,7 +126,7 @@ const bot = async () => {
                     user: user.split('\r\n')[0]
                 }
                 newUserMode = new Mode(modeData)
-                newUserMode.save()
+                await newUserMode.save()
             }
         }
     }

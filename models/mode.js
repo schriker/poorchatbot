@@ -23,4 +23,6 @@ const modeSchema = new Schema({
     }
   })
 
+  modeSchema.index({ user: 1 })
+
   module.exports = mongoose.model('wonziu_mode', modeSchema)
