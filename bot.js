@@ -114,10 +114,9 @@ const bot = async () => {
                 mode: modesArray,
                 user: user.split('\r\n')[0]
             }
-            console.log('Updating', modeData)
             const userMode = await Mode.findOne({ user: modeData.user })
             if (userMode) {
-                userMode.mode = modeData.mode
+                userMode.mode = [...new Set(userMode.mode.concat(modeData.mode))]
                 userMode.save()
             } else {
                 newUserMode = new Mode(modeData)
