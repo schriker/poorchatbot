@@ -102,23 +102,29 @@ const bot = async () => {
 
         let modesArray = mode.split('')
 
-        if (modesArray[0] === '-') {
-            modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
-        } else {
-            modesArray = modesArray.filter(mode => mode !== modesArray[0])
-        }
-
         if (user) {
-            const modeData = {
-                channel: channel,
-                mode: modesArray,
-                user: user.split('\r\n')[0]
-            }
-            const userMode = await Mode.findOne({ user: modeData.user })
+            const userMode = await Mode.findOne({ user: user })
             if (userMode) {
-                userMode.mode = [...new Set(userMode.mode.concat(modeData.mode))]
+                let concatModes = [...new Set(userMode.mode.concat(modesArray))]
+                console.log(modesArray ,concatModes)
+                if (modesArray[0] === '-') {
+                    concatModes = concatModes.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
+                } else {
+                    concatModes = concatModes.filter(mode => mode !== modesArray[0])
+                }
+                userMode.mode = concatModes
                 userMode.save()
             } else {
+                if (modesArray[0] === '-') {
+                    modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
+                } else {
+                    modesArray = modesArray.filter(mode => mode !== modesArray[0])
+                }
+                const modeData = {
+                    channel: channel,
+                    mode: modesArray,
+                    user: user.split('\r\n')[0]
+                }
                 newUserMode = new Mode(modeData)
                 newUserMode.save()
             }
