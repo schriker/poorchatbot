@@ -8,7 +8,7 @@ const modeSchema = new Schema({
       required: true
     },
     mode: {
-      type: String,
+      type: [String],
       required: true
     },
     user: {
@@ -19,7 +19,7 @@ const modeSchema = new Schema({
   {
     timestamps: { 
       createdAt: true,
-      updatedAt: false
+      updatedAt: true
     }
   })
 
