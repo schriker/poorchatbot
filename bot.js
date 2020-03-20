@@ -100,12 +100,10 @@ const bot = async () => {
     const modeHandler = (IRCMessage) => {
         return new Promise(async resolve => {
             const [ channel, mode, user ] = IRCMessage.params
-    
             let modesArray = mode.split('')
-    
             if (user) {
                 const userMode = await Mode.findOne({ user: user })
-                if (userMode) {
+                if (userMode.user === user) {
                     let concatModes = [...new Set(userMode.mode.concat(modesArray))]
                     if (modesArray[0] === '-') {
                         concatModes = concatModes.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
