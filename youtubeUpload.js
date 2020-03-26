@@ -23,7 +23,7 @@ const getAccessToken = () => {
   })
 }
 
-const youtubeUpload = (fileName, facebookVideo) => {
+const youtubeUpload = (file, video) => {
   return new Promise(async (resolve, reject) => {
     try {
       const oAuthClient = new google.auth.OAuth2(
@@ -38,7 +38,7 @@ const youtubeUpload = (fileName, facebookVideo) => {
         auth: oAuthClient
       })
 
-      const startDate = moment(facebookVideo.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
+      const startDate = moment(video.started).add(1, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
 
       const videoDesc = `Całe archiwum strumieni: https://www.youtube.com/playlist?list=PLWbAUhvm4h-Mz9YKtMZQX2xAR_dzlklUv
 oraz na stronie https://jarchiwum.pl
@@ -61,9 +61,9 @@ https://www.grindpeace.com/
 
 Pozdrawiam,
 m.
-${facebookVideo.facebookId}`
+${video.facebookId}`
   
-      const video = await youtube.videos.insert({
+      const youtubeVideo = await youtube.videos.insert({
         part: 'id,snippet,status',
         notifySubscribers: false,
         requestBody: {
@@ -76,14 +76,14 @@ ${facebookVideo.facebookId}`
           }
         },
         media: {
-          body: fs.createReadStream(fileName)
+          body: typeof file === 'string' ? fs.createReadStream(file) : file
         }
       })
-      resolve(video)
+      resolve(youtubeVideo)
     } catch (err) {
         const error = {
           data: err,
-          facebookVideo: facebookVideo 
+          video: video 
         }
         reject(error)
     }

@@ -12,18 +12,15 @@ const qs = require('querystring')
 const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
-const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
-const botComandsHandler = require('./bot/comandsHandler')
-const facebookVideoDownloader = require('./facebookVideoDownloader')
+const twitchVideoDownloader = require('./twitch')
+const Facebook = require('./facebook')
 
 const bot = async () => {
     let message = {}
-    let isFacebook = false
     let isNvidia = false
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
-    const messagesBuffer = []
     let videoHighLights = []
     let highLightsType = ''
     let highLightsCount = 0
@@ -87,16 +84,6 @@ const bot = async () => {
         }
     }
 
-    const messagesBufferHandler = async (IRCMessage) => {
-        const messageData = messageCreator(IRCMessage, new Date)
-        if (messagesBuffer.length > 30) {
-            messagesBuffer.shift()
-            messagesBuffer.push(messageData)            
-        } else {
-            messagesBuffer.push(messageData)
-        }
-    }
-
     const modeHandler = (IRCMessage) => {
         return new Promise(async resolve => {
             const [ channel, mode, user ] = IRCMessage.params
@@ -142,7 +129,6 @@ const bot = async () => {
     console.log('Working...')
     client.on('message', messageHandler)
     client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage))
-    // client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
@@ -159,26 +145,22 @@ const bot = async () => {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
-                // client.off('message', messagesBufferHandler)
-                // saveMessagesBuffer(messagesBuffer)
-                isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
                     isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
-                }
-                videoHighLights = []
-                videoStartDate = date
-                console.log(`Stream: [Online] - ${date}`)
-                // client.on('message', messageHandler)
-            } else if (!currentStatus) {
-                console.log(`Stream: [Offline] - ${date}`)
-                // client.on('message', messagesBufferHandler)
-                // client.off('message', messageHandler)
-                searchFacebookVideo(message.data.topic.text)
+                    if (isNvidia) {
+                        videoHighLights = []
+                        videoStartDate = date
+                        console.log(`Twitch: [Online] - ${date}`)
+                    } 
+                } 
+            } else {
+                console.log(`Twitch: [Offline] - ${date}`)
+                saveTwitchVideo()
             }
         }
     })
 
-    const searchFacebookVideo = async (videoTitle) => {
+    const saveTwitchVideo = async () => {
         if (videoStartDate && isNvidia) {
             try {
                 const response = await axios.get('https://api.twitch.tv/helix/videos?user_id=93141680', {
@@ -203,48 +185,47 @@ const bot = async () => {
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
-                facebookVideoDownloader(savedVideo)
+                twitchVideoDownloader(savedVideo)
                 isNvidia = false
             } catch (err) {
                 console.log(err)
             }
         }
-        if (videoStartDate && isFacebook) {
+    }
+
+    const facebook = new Facebook('369632869905557')
+    facebook.on('online', () => {
+        videoHighLights = []
+        videoStartDate = new Date()
+    })
+
+    facebook.on('uploaded', (video) => {
+        saveFacebookVideo(video)
+    })
+
+    const saveFacebookVideo = async (uploadedVideo) => {
+        if (videoStartDate) {
             try {
                 const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
                 const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
                 const facebookTitle = videoData.title.split('\n').filter(e => e !== '').join(' ')
 
-                const timeResponse = await axios({
-                    url: `https://www.facebook.com/video/tahoe/async/${videoData.videoID}/?payloadtype=secondary`,
-                    method: 'POST',
-                    data: qs.stringify({ '__a': 1 }),
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded',
-                      'User-Agent': 'PostmanRuntime/7.19.0'
-                    }
-                  })
-                  const timeData = JSON.parse(timeResponse.data.split('for (;;);')[1])
-                  const ftKey = JSON.parse(timeData.payload.ftKey)
-                  const videoTimeStamp = new Date(ftKey.page_insights[ftKey.page_id].post_context.publish_time * 1000)
-
                 facebookVideoData = {
                     facebookId: videoData.videoID,
                     url: videoData.videoURL,
-                    title: facebookTitle || videoTitle,
+                    title: facebookTitle,
                     views: 0,
                     duration: msToTime(new Date() - videoStartDate),
-                    started: videoStartDate, // videoTimeStamp - use it when need to donwload start time from facebook not from notifications
-                    thumbnail: videoData.thumbnailURI,
+                    started: videoStartDate,
+                    thumbnail: uploadedVideo.data.snippet.thumbnails.medium.url,
                     public: true,
-                    highLights: videoHighLights
+                    highLights: videoHighLights,
+                    youTubeId: uploadedVideo.data.id
                 }
                 const video = new FacebookVideo(facebookVideoData)
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
                 console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
-                facebookVideoDownloader(savedVideo)
-                isFacebook = false
             } catch (error) {
                 console.log(error)
             }
