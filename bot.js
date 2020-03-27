@@ -28,170 +28,170 @@ const bot = async () => {
     let highLightsTimer = null
     let totalMessagesCount = 0
     
-    // const options = {
-    //     websocket: 'https://irc.poorchat.net/',
-    //     irc: 'irc.poorchat.net',
-    //     channel: '#jadisco',
-    //     login: config.USER_LOGIN,
-    //     password: config.USER_PASSWORD,
-    //     cap: [
-    //         'CAP REQ :poorchat.net/embed',
-    //         'CAP REQ :poorchat.net/color',
-    //         'CAP REQ :poorchat.net/subscription',
-    //         'CAP REQ :poorchat.net/subscriptiongifter',
-    //         'CAP REQ :multi-prefix'
-    //     ],
-    //     debug: false
-    // }
+    const options = {
+        websocket: 'https://irc.poorchat.net/',
+        irc: 'irc.poorchat.net',
+        channel: '#jadisco',
+        login: config.USER_LOGIN,
+        password: config.USER_PASSWORD,
+        cap: [
+            'CAP REQ :poorchat.net/embed',
+            'CAP REQ :poorchat.net/color',
+            'CAP REQ :poorchat.net/subscription',
+            'CAP REQ :poorchat.net/subscriptiongifter',
+            'CAP REQ :multi-prefix'
+        ],
+        debug: false
+    }
 
-    // const messageHandler = async (IRCMessage) => {
-    //     const messageData = messageCreator(IRCMessage)
-    //     const message = new Message(messageData)
+    const messageHandler = async (IRCMessage) => {
+        const messageData = messageCreator(IRCMessage)
+        const message = new Message(messageData)
 
-    //     try {
-    //         message.save()
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
+        try {
+            message.save()
+        } catch (error) {
+            console.log(error)
+        }
 
-    //     totalMessagesCount += 1
+        totalMessagesCount += 1
 
-    //     for (let keyWord of highLights) {
-    //         if (messageData.body.toLowerCase().includes(keyWord.toLowerCase())) {
-    //             highLightsCount += 1
-    //             if (highLightsCount === 1) {
-    //                 totalMessagesCount = 1
-    //                 highLightsType = keyWord
-    //                 highLightsTime = new Date()
-    //             }
-    //             if (highLightsCount >= 1) {
-    //                 clearTimeout(highLightsTimer)
-    //                 highLightsTimer = setTimeout(() => {
-    //                     let percent = highLightsCount / totalMessagesCount * 100
-    //                     if (percent >= 50 && highLightsCount > 5) {
-    //                        videoHighLights.push({
-    //                            time: highLightsTime,
-    //                            percent: percent,
-    //                            highLightsCount: highLightsCount,
-    //                            totalMessagesCount: totalMessagesCount,
-    //                            type: highLightsType
-    //                        }) 
-    //                     }
-    //                     highLightsCount = 0
-    //                 }, 10000)
-    //             }
-    //         }
-    //     }
-    // }
+        for (let keyWord of highLights) {
+            if (messageData.body.toLowerCase().includes(keyWord.toLowerCase())) {
+                highLightsCount += 1
+                if (highLightsCount === 1) {
+                    totalMessagesCount = 1
+                    highLightsType = keyWord
+                    highLightsTime = new Date()
+                }
+                if (highLightsCount >= 1) {
+                    clearTimeout(highLightsTimer)
+                    highLightsTimer = setTimeout(() => {
+                        let percent = highLightsCount / totalMessagesCount * 100
+                        if (percent >= 50 && highLightsCount > 5) {
+                           videoHighLights.push({
+                               time: highLightsTime,
+                               percent: percent,
+                               highLightsCount: highLightsCount,
+                               totalMessagesCount: totalMessagesCount,
+                               type: highLightsType
+                           }) 
+                        }
+                        highLightsCount = 0
+                    }, 10000)
+                }
+            }
+        }
+    }
 
-    // const modeHandler = (IRCMessage) => {
-    //     return new Promise(async resolve => {
-    //         const [ channel, mode, user ] = IRCMessage.params
-    //         let modesArray = mode.split('')
-    //         if (user) {
-    //             const userMode = await Mode.findOne({ user: user.split('\r\n')[0] })
-    //             if (userMode) {
-    //                 let concatModes = [...new Set(userMode.mode.concat(modesArray))]
-    //                 if (modesArray[0] === '-') {
-    //                     concatModes = concatModes.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
-    //                 } else {
-    //                     concatModes = concatModes.filter(mode => mode !== modesArray[0])
-    //                 }
-    //                 userMode.mode = concatModes
-    //                 await userMode.save()
-    //                 resolve()
-    //             } else {
-    //                 if (modesArray[0] === '-') {
-    //                     modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
-    //                 } else {
-    //                     modesArray = modesArray.filter(mode => mode !== modesArray[0])
-    //                 }
-    //                 const modeData = {
-    //                     channel: channel,
-    //                     mode: modesArray,
-    //                     user: user.split('\r\n')[0]
-    //                 }
-    //                 newUserMode = new Mode(modeData)
-    //                 await newUserMode.save()
-    //                 resolve()
-    //             }
-    //         }
-    //     })
-    // }
+    const modeHandler = (IRCMessage) => {
+        return new Promise(async resolve => {
+            const [ channel, mode, user ] = IRCMessage.params
+            let modesArray = mode.split('')
+            if (user) {
+                const userMode = await Mode.findOne({ user: user.split('\r\n')[0] })
+                if (userMode) {
+                    let concatModes = [...new Set(userMode.mode.concat(modesArray))]
+                    if (modesArray[0] === '-') {
+                        concatModes = concatModes.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
+                    } else {
+                        concatModes = concatModes.filter(mode => mode !== modesArray[0])
+                    }
+                    userMode.mode = concatModes
+                    await userMode.save()
+                    resolve()
+                } else {
+                    if (modesArray[0] === '-') {
+                        modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
+                    } else {
+                        modesArray = modesArray.filter(mode => mode !== modesArray[0])
+                    }
+                    const modeData = {
+                        channel: channel,
+                        mode: modesArray,
+                        user: user.split('\r\n')[0]
+                    }
+                    newUserMode = new Mode(modeData)
+                    await newUserMode.save()
+                    resolve()
+                }
+            }
+        })
+    }
 
-    // const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
-    //     WebSocket: WebSocket
-    // })
+    const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
+        WebSocket: WebSocket
+    })
 
-    // const client = new Poorchat(options)
-    // await client.connect()
+    const client = new Poorchat(options)
+    await client.connect()
     
-    // console.log('Working...')
-    // client.on('message', messageHandler)
-    // client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage))
+    console.log('Working...')
+    client.on('message', messageHandler)
+    client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage))
 
-    // notifier.addEventListener('message', async (response) => {
-    //     const data = JSON.parse(response.data)
-    //     message = merge(message, data)
-    //     if (message.data.type === 'ping') {
-    //         const pong = JSON.stringify({ type: 'pong' })
-    //         notifier.send(pong)
-    //         return
-    //     } 
+    notifier.addEventListener('message', async (response) => {
+        const data = JSON.parse(response.data)
+        message = merge(message, data)
+        if (message.data.type === 'ping') {
+            const pong = JSON.stringify({ type: 'pong' })
+            notifier.send(pong)
+            return
+        } 
 
-    //     const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
+        const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
 
-    //     if (currentStatus !== newMessageStatus) {
-    //         const date = new Date()
-    //         currentStatus = newMessageStatus
-    //         if (currentStatus) {
-    //             if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
-    //                 isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
-    //                 if (isNvidia) {
-    //                     videoHighLights = []
-    //                     videoStartDate = date
-    //                     console.log(`Twitch: [Online] - ${date}`)
-    //                 } 
-    //             } 
-    //         } else {
-    //             console.log(`Twitch: [Offline] - ${date}`)
-    //             saveTwitchVideo()
-    //         }
-    //     }
-    // })
+        if (currentStatus !== newMessageStatus) {
+            const date = new Date()
+            currentStatus = newMessageStatus
+            if (currentStatus) {
+                if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
+                    isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
+                    if (isNvidia) {
+                        videoHighLights = []
+                        videoStartDate = date
+                        console.log(`Twitch: [Online] - ${date}`)
+                    } 
+                } 
+            } else {
+                console.log(`Twitch: [Offline] - ${date}`)
+                saveTwitchVideo()
+            }
+        }
+    })
 
-    // const saveTwitchVideo = async () => {
-    //     if (videoStartDate && isNvidia) {
-    //         try {
-    //             const response = await axios.get('https://api.twitch.tv/helix/videos?user_id=93141680', {
-    //             headers: {
-    //                 'Client-ID': 'w87bqmg0y9ckftb2aii2tdielbr1rx'
-    //                 }
-    //             })
-    //             const video = response.data.data[0]
+    const saveTwitchVideo = async () => {
+        if (videoStartDate && isNvidia) {
+            try {
+                const response = await axios.get('https://api.twitch.tv/helix/videos?user_id=93141680', {
+                headers: {
+                    'Client-ID': 'w87bqmg0y9ckftb2aii2tdielbr1rx'
+                    }
+                })
+                const video = response.data.data[0]
 
-    //             facebookVideoData = {
-    //                 facebookId: video.id,
-    //                 url: video.url,
-    //                 title: video.title,
-    //                 views: video.view_count,
-    //                 duration: video.duration,
-    //                 started: videoStartDate,
-    //                 thumbnail: video.thumbnail_url,
-    //                 public: false,
-    //                 highLights: videoHighLights
-    //             }
-    //             const videoTwitch = new FacebookVideo(facebookVideoData)
-    //             const savedVideo = await videoTwitch.save()
-    //             countChatData(savedVideo._id)
-    //             console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
-    //             twitchVideoDownloader(savedVideo)
-    //             isNvidia = false
-    //         } catch (err) {
-    //             console.log(err)
-    //         }
-    //     }
-    // }
+                facebookVideoData = {
+                    facebookId: video.id,
+                    url: video.url,
+                    title: video.title,
+                    views: video.view_count,
+                    duration: video.duration,
+                    started: videoStartDate,
+                    thumbnail: video.thumbnail_url,
+                    public: false,
+                    highLights: videoHighLights
+                }
+                const videoTwitch = new FacebookVideo(facebookVideoData)
+                const savedVideo = await videoTwitch.save()
+                countChatData(savedVideo._id)
+                console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
+                twitchVideoDownloader(savedVideo)
+                isNvidia = false
+            } catch (err) {
+                console.log(err)
+            }
+        }
+    }
 
     const facebook = new Facebook('369632869905557')
     facebook.on('online', () => {
@@ -204,33 +204,32 @@ const bot = async () => {
     })
 
     const saveFacebookVideo = async (uploadedVideo) => {
-        console.log(uploadedVideo)
-        // if (videoStartDate) {
-        //     try {
-        //         const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
-        //         const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
-        //         const facebookTitle = videoData.title.split('\n').filter(e => e !== '').join(' ')
+        if (videoStartDate) {
+            try {
+                const response = await axios.get('https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a')
+                const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
+                const facebookTitle = videoData.title.split('\n').filter(e => e !== '').join(' ')
 
-        //         facebookVideoData = {
-        //             facebookId: videoData.videoID,
-        //             url: videoData.videoURL,
-        //             title: facebookTitle,
-        //             views: 0,
-        //             duration: msToTime(new Date() - videoStartDate),
-        //             started: videoStartDate,
-        //             thumbnail: uploadedVideo.data.snippet.thumbnails.medium.url,
-        //             public: true,
-        //             highLights: videoHighLights,
-        //             youTubeId: uploadedVideo.data.id
-        //         }
-        //         const video = new FacebookVideo(facebookVideoData)
-        //         const savedVideo = await video.save()
-        //         countChatData(savedVideo._id)
-        //         console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
-        //     } catch (error) {
-        //         console.log(error)
-        //     }
-        // }
+                facebookVideoData = {
+                    facebookId: videoData.videoID,
+                    url: videoData.videoURL,
+                    title: facebookTitle,
+                    views: 0,
+                    duration: msToTime(new Date() - videoStartDate),
+                    started: videoStartDate,
+                    thumbnail: uploadedVideo.data.snippet.thumbnails.medium.url,
+                    public: true,
+                    highLights: videoHighLights,
+                    youTubeId: uploadedVideo.data.id
+                }
+                const video = new FacebookVideo(facebookVideoData)
+                const savedVideo = await video.save()
+                countChatData(savedVideo._id)
+                console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
+            } catch (error) {
+                console.log(error)
+            }
+        }
     }
 }
 
