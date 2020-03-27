@@ -35,6 +35,20 @@ class Facebook extends EventEmitter {
           }
         } else if (!this.isOnline) {
           console.log(`Facebook: [Offline] - ${videoID} - ${new Date()}`)
+          if (this.error) {
+            this.emit('uploaded', {
+              data: {
+                id: '',
+                snippet: {
+                  thumbnails: {
+                    medium: {
+                      url: ''
+                    }
+                  }
+                }
+              }
+            })
+          }
           this.error = false
           this.emit('offline')
         }

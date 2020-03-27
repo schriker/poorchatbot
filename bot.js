@@ -138,7 +138,6 @@ const bot = async () => {
             notifier.send(pong)
             return
         } 
-
         const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
 
         if (currentStatus !== newMessageStatus) {
