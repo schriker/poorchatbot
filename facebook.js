@@ -24,11 +24,9 @@ class Facebook extends EventEmitter {
         if (this.isOnline) {
           this.emit('online')
           console.log(`Facebook: [Online] - ${videoID} - ${new Date()}`)
-          this.isOnline = true
           this.startDownload(videoID)
           clearInterval(interval)
         } else if (!this.isOnline) {
-          this.isOnline = false
           this.emit('offline')
           console.log(`Facebook: [Offline] - ${videoID} - ${new Date()}`)
         }
@@ -38,33 +36,66 @@ class Facebook extends EventEmitter {
 
   async startDownload(videoID) {
     const streamlink = spawn('streamlink', [`https://www.facebook.com/${this.facebookId}/videos/${videoID}`, 'best', '-O'])
-    const ffmpeg = spawn('ffmpeg', ['-i', 'pipe:0', '-c', 'copy', '-f', 'flv', 'pipe:1'])
-  
+    const ffmpeg = spawn('ffmpeg', ['-i', 'pipe:0', '-c', 'copy', '-f', 'flv', 'rtmp://a.rtmp.youtube.com/live2/agch-28ju-egt5-6k57'])
+
+    
+
     streamlink.stdout.on('data', (data) => {
-      ffmpeg.stdin.write(data)
-    })
+      ffmpeg.stdin.write(data);
+    });
+    
+    streamlink.stderr.on('data', (data) => {
+      console.error(`streamlink stderr: ${data}`);
+    });
     
     streamlink.on('close', (code) => {
       if (code !== 0) {
-        console.log(`streamlink process exited with code ${code}`)
+        console.log(`streamlink process exited with code ${code}`);
       }
-      ffmpeg.stdin.end()
-    })
+      ffmpeg.stdin.end();
+    });
+    
+    ffmpeg.stdout.on('data', (data) => {
+      console.log(data.toString());
+    });
+    
+    ffmpeg.stderr.on('data', (data) => {
+      console.error(`ffmpeg stderr: ${data}`);
+    });
     
     ffmpeg.on('close', (code) => {
       if (code !== 0) {
-        console.log(`ffmpeg process exited with code ${code}`)
+        console.log(`ffmpeg process exited with code ${code}`);
       }
-    })
+    });
 
-    try {
-      const video = await youtubeUpload(ffmpeg.stdout, { facebookId: videoID, started: new Date() })
-      console.log(`Facebook Video - ${videoID} - uploaded - ${new Date()}`)
-      this.listener()
-      this.emit('uploaded', video)
-    } catch (err) {
-      console.log(err)
-    }
+
+
+    // streamlink.stdout.on('data', (data) => {
+    //   ffmpeg.stdin.write(data)
+    // })
+    
+    // streamlink.on('close', (code) => {
+    //   if (code !== 0) {
+    //     console.log(`streamlink process exited with code ${code}`)
+    //   }
+    //   ffmpeg.stdin.end()
+    // })
+    
+    // ffmpeg.on('close', (code) => {
+    //   if (code !== 0) {
+    //     console.log(`ffmpeg process exited with code ${code}`)
+    //   }
+    // })
+
+    // try {
+    //   const video = await youtubeUpload(ffmpeg.stdout, { facebookId: videoID, started: new Date() })
+    //   console.log(`Facebook Video - ${videoID} - uploaded - ${new Date()}`)
+    //   this.listener()
+    //   this.emit('uploaded', video)
+    // } catch (err) {
+    //   console.log(err)
+    // }
   }
 }
 
