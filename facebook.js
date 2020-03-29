@@ -107,7 +107,7 @@ class Facebook extends EventEmitter {
       ffmpeg.kill()
       streamlink.kill()
       this.error = true
-      this.interval()
+      this.listener()
     }
   }
 }
