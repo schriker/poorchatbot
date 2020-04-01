@@ -113,7 +113,6 @@ const bot = async () => {
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
-        console.log(data)
         message = merge(message, data)
         if (message.data.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
