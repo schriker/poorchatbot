@@ -4,19 +4,25 @@ const { exec } = require('child_process')
 const youtubeUpload = require('./youtubeUpload')
 const FacebookVideo = require('./models/facebookVideo')
 
+let tryNumber = 0
+
 const videoDownloader = (video) => {
     let comand
     if (video.public === true) {
-      // comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
-      comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
+      if (tryNumber > 15) {
+        coćmand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -o "${video.facebookId}.%(ext)s"`
+      } else {
+        coćmand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
+      }
     } else if (video.public === false) {
-      comand = `youtube-dl ${video.url} -f "best[ext=mp4]" -o "${video.facebookId}.%(ext)s"`
+      comand = `youtube-dl ${video.url} -o "${video.facebookId}.%(ext)s"`
     }
     exec(comand, 
     async (error, stdout, stderr) => {
       try {
         if (error) {
             console.error(`Comand error: ${error}`)
+            tryNumber = tryNumber + 1
             setTimeout(() => videoDownloader(video), 120000)
             return
           }
@@ -26,8 +32,10 @@ const videoDownloader = (video) => {
         videoInDatabase.youTubeId = youTubeVideo.data.id
         videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.medium.url
         videoInDatabase.save()
-        console.log('Video reuploaded!')
+        tryNumber = 0
+        console.log(`[Reuploaded] - ${video.facebookId} - ${new Date()}`)
       } catch (err) {
+        tryNumber = 0
         if (err.data.response) {
           if (err.data.response.status === 401 || err.data.response.status === 500) {
             setTimeout(() => videoDownloader(err.facebookVideo), 300000)

@@ -14,7 +14,24 @@ const modeHandler = require('./bot/modeHandler')
 const videoDownloader = require('./videoDownloader')
 
 const bot = async () => {
-    let message = {}
+    let message = {
+        type: '',
+        data: {
+          streamers: [],
+          stream: {
+            status: false,
+            viewers: 0,
+            services: [],
+            online_at: '',
+            offline_at: ''
+          },
+          topic: {
+            id: 0,
+            text: '',
+            updated_at: ''
+          }
+        }
+      }
     let isFacebook = false
     let isNvidia = false
     let currentStatus = null
@@ -96,6 +113,7 @@ const bot = async () => {
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
+        console.log(data)
         message = merge(message, data)
         if (message.data.type === 'ping') {
             const pong = JSON.stringify({ type: 'pong' })
@@ -147,7 +165,7 @@ const bot = async () => {
                 const videoTwitch = new FacebookVideo(facebookVideoData)
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
-                console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
+                console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`)
                 videoDownloader(savedVideo)
                 isNvidia = false
             } catch (err) {
@@ -174,7 +192,7 @@ const bot = async () => {
                 const video = new FacebookVideo(facebookVideoData)
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
-                console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
+                console.log(`[Facebook Vide Saved] - ${facebookVideoData.title}`)
                 videoDownloader(savedVideo)
                 isFacebook = false
             } catch (error) {
