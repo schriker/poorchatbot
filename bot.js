@@ -4,17 +4,14 @@ const { highLights }  = require('./consts')
 const ReconnectingWebSocket = require('reconnecting-websocket')
 const Message = require('./models/message')
 const FacebookVideo = require('./models/facebookVideo')
-const Mode = require('./models/mode')
 const config = require('./config.json')
 const merge = require('lodash.merge')
 const axios = require('axios')
-const qs = require('querystring')
 const msToTime = require('./helpers/milisecondsToTime')
 const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
-const saveMessagesBuffer = require('./bot/saveMessagesBuffer')
-const botComandsHandler = require('./bot/comandsHandler')
-const facebookVideoDownloader = require('./facebookVideoDownloader')
+const modeHandler = require('./bot/modeHandler')
+const videoDownloader = require('./videoDownloader')
 
 const bot = async () => {
     let message = {}
@@ -23,7 +20,6 @@ const bot = async () => {
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
-    const messagesBuffer = []
     let videoHighLights = []
     let highLightsType = ''
     let highLightsCount = 0
@@ -87,51 +83,6 @@ const bot = async () => {
         }
     }
 
-    const messagesBufferHandler = async (IRCMessage) => {
-        const messageData = messageCreator(IRCMessage, new Date)
-        if (messagesBuffer.length > 30) {
-            messagesBuffer.shift()
-            messagesBuffer.push(messageData)            
-        } else {
-            messagesBuffer.push(messageData)
-        }
-    }
-
-    const modeHandler = (IRCMessage) => {
-        return new Promise(async resolve => {
-            const [ channel, mode, user ] = IRCMessage.params
-            let modesArray = mode.split('')
-            if (user) {
-                const userMode = await Mode.findOne({ user: user.split('\r\n')[0] })
-                if (userMode) {
-                    let concatModes = [...new Set(userMode.mode.concat(modesArray))]
-                    if (modesArray[0] === '-') {
-                        concatModes = concatModes.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
-                    } else {
-                        concatModes = concatModes.filter(mode => mode !== modesArray[0])
-                    }
-                    userMode.mode = concatModes
-                    await userMode.save()
-                    resolve()
-                } else {
-                    if (modesArray[0] === '-') {
-                        modesArray = modesArray.filter(mode => mode !== modesArray[0] && mode !== modesArray[1])
-                    } else {
-                        modesArray = modesArray.filter(mode => mode !== modesArray[0])
-                    }
-                    const modeData = {
-                        channel: channel,
-                        mode: modesArray,
-                        user: user.split('\r\n')[0]
-                    }
-                    newUserMode = new Mode(modeData)
-                    await newUserMode.save()
-                    resolve()
-                }
-            }
-        })
-    }
-
     const notifier = new ReconnectingWebSocket('https://api.pancernik.info/notifier', [], {
         WebSocket: WebSocket
     })
@@ -142,7 +93,6 @@ const bot = async () => {
     console.log('Working...')
     client.on('message', messageHandler)
     client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage))
-    // client.on('message', (IRCMessage) => botComandsHandler(IRCMessage, client))
 
     notifier.addEventListener('message', async (response) => {
         const data = JSON.parse(response.data)
@@ -159,8 +109,6 @@ const bot = async () => {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
-                // client.off('message', messagesBufferHandler)
-                // saveMessagesBuffer(messagesBuffer)
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
                     isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
@@ -168,11 +116,8 @@ const bot = async () => {
                 videoHighLights = []
                 videoStartDate = date
                 console.log(`Stream: [Online] - ${date}`)
-                // client.on('message', messageHandler)
             } else if (!currentStatus) {
                 console.log(`Stream: [Offline] - ${date}`)
-                // client.on('message', messagesBufferHandler)
-                // client.off('message', messageHandler)
                 searchFacebookVideo(message.data.topic.text)
             }
         }
@@ -203,7 +148,7 @@ const bot = async () => {
                 const savedVideo = await videoTwitch.save()
                 countChatData(savedVideo._id)
                 console.log(`Twitch Video Saved - ${facebookVideoData.title}`)
-                facebookVideoDownloader(savedVideo)
+                videoDownloader(savedVideo)
                 isNvidia = false
             } catch (err) {
                 console.log(err)
@@ -215,26 +160,13 @@ const bot = async () => {
                 const videoData = JSON.parse(response.data.split('for (;;);')[1]).payload.page.video_data[0]
                 const facebookTitle = videoData.title.split('\n').filter(e => e !== '').join(' ')
 
-                const timeResponse = await axios({
-                    url: `https://www.facebook.com/video/tahoe/async/${videoData.videoID}/?payloadtype=secondary`,
-                    method: 'POST',
-                    data: qs.stringify({ '__a': 1 }),
-                    headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded',
-                      'User-Agent': 'PostmanRuntime/7.19.0'
-                    }
-                  })
-                  const timeData = JSON.parse(timeResponse.data.split('for (;;);')[1])
-                  const ftKey = JSON.parse(timeData.payload.ftKey)
-                  const videoTimeStamp = new Date(ftKey.page_insights[ftKey.page_id].post_context.publish_time * 1000)
-
                 facebookVideoData = {
                     facebookId: videoData.videoID,
                     url: videoData.videoURL,
                     title: facebookTitle || videoTitle,
                     views: 0,
                     duration: msToTime(new Date() - videoStartDate),
-                    started: videoStartDate, // videoTimeStamp - use it when need to donwload start time from facebook not from notifications
+                    started: videoStartDate,
                     thumbnail: videoData.thumbnailURI,
                     public: true,
                     highLights: videoHighLights
@@ -243,7 +175,7 @@ const bot = async () => {
                 const savedVideo = await video.save()
                 countChatData(savedVideo._id)
                 console.log(`Facebook Vide Saved - ${facebookVideoData.title}`)
-                facebookVideoDownloader(savedVideo)
+                videoDownloader(savedVideo)
                 isFacebook = false
             } catch (error) {
                 console.log(error)

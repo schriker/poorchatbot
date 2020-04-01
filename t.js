@@ -151,7 +151,7 @@ const moments = () => {
     })
     .then(async () => {
       console.log('Contected to DB')
-      const videos = await FacebookVideo.find({ facebookId: '246808516341527' }).sort({createdAt: -1})
+      const videos = await FacebookVideo.find({ facebookId: '572315733379387' }).sort({createdAt: -1})
       console.log(videos.length)
 
       for (let video of videos){
