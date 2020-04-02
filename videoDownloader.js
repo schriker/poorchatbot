@@ -10,9 +10,9 @@ const videoDownloader = (video) => {
     let comand
     if (video.public === true) {
       if (tryNumber > 15) {
-        coćmand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -o "${video.facebookId}.%(ext)s"`
+        comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -o "${video.facebookId}.%(ext)s"`
       } else {
-        coćmand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
+        comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
       }
     } else if (video.public === false) {
       comand = `youtube-dl ${video.url} -o "${video.facebookId}.%(ext)s"`

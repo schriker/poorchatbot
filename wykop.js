@@ -54,7 +54,6 @@ class Wykop {
             reject(res)
           } else if (apiParams[0] === 'login') {
             this.userKey = res.data.data.userkey
-            console.log(`${res.data.data.profile.login} logedin!`)
             resolve(res.data)
           } else {
             resolve(res.data)

@@ -68,7 +68,7 @@ const wykopNotifier = async () => {
       .then(() => {
         notifier.removeEventListener('message')
         notifier.close()
-        console.log('Wykop post posted!')
+        console.log(`[Wykop posted] - ${new Date()}`)
       }) 
     })
   }
