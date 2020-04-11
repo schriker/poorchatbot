@@ -200,9 +200,6 @@ const bot = async ({ name, website, highLights, pageId, twitchId }) => {
                       'User-Agent': 'PostmanRuntime/7.19.0'
                     }
                   })
-                  const timeData = JSON.parse(timeResponse.data.split('for (;;);')[1])
-                  const ftKey = JSON.parse(timeData.payload.ftKey)
-                  const videoTimeStamp = new Date(ftKey.page_insights[ftKey.page_id].post_context.publish_time * 1000)
 
                 facebookVideoData = {
                     facebookId: videoData.videoID,
@@ -210,7 +207,7 @@ const bot = async ({ name, website, highLights, pageId, twitchId }) => {
                     title: videoData.title || '',
                     views: 0,
                     duration: msToTime(new Date() - videoStartDate),
-                    started: videoTimeStamp,
+                    started: videoStartDate,
                     thumbnail: videoData.thumbnailURI,
                     public: true,
                     highLights: videoHighLights
