@@ -143,9 +143,13 @@ const bot = async () => {
     const searchFacebookVideo = async (videoTitle) => {
         if (videoStartDate && isNvidia) {
             try {
+                const authToken = await axios.post(
+                    `https://id.twitch.tv/oauth2/token?client_id=${config.TWITCH_CLIENT_ID}&client_secret=${config.TWITCH_SECRET}&grant_type=client_credentials`
+                  )
                 const response = await axios.get('https://api.twitch.tv/helix/videos?user_id=93141680', {
                 headers: {
-                    'Client-ID': 'w87bqmg0y9ckftb2aii2tdielbr1rx'
+                    'Client-ID': config.TWITCH_CLIENT_ID,
+                    'Authorization': `Bearer ${authToken.data.access_token}`
                     }
                 })
                 const video = response.data.data[0]
