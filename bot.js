@@ -173,6 +173,7 @@ const bot = async () => {
                 console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`)
                 videoDownloader(savedVideo)
                 isNvidia = false
+                isTwitch = false
             } catch (err) {
                 console.log(err)
             }
