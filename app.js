@@ -9,6 +9,7 @@ const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB
 console.log('Contecting to DB...')
 mongoose.connect(mongoHost, {
   useNewUrlParser: true,
+  useCreateIndex: true,
   useFindAndModify: false,
   useUnifiedTopology: true
   })

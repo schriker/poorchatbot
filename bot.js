@@ -34,6 +34,7 @@ const bot = async () => {
       }
     let isFacebook = false
     let isNvidia = false
+    let isTwitch = false
     let currentStatus = null
     let videoStartDate = null
     let facebookVideoData = {}
@@ -121,12 +122,13 @@ const bot = async () => {
         } 
 
         const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
-
+        
         if (currentStatus !== newMessageStatus) {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
                 isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
+                isTwitch = message.data.stream.services.filter(service => service.name === 'twitch')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
                     isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
                 }
@@ -141,12 +143,12 @@ const bot = async () => {
     })
 
     const searchFacebookVideo = async (videoTitle) => {
-        if (videoStartDate && isNvidia) {
+        if (videoStartDate && (isNvidia || isTwitch)) {
             try {
                 const authToken = await axios.post(
                     `https://id.twitch.tv/oauth2/token?client_id=${config.TWITCH_CLIENT_ID}&client_secret=${config.TWITCH_SECRET}&grant_type=client_credentials`
                   )
-                const response = await axios.get('https://api.twitch.tv/helix/videos?user_id=93141680', {
+                const response = await axios.get(`https://api.twitch.tv/helix/videos?user_id=${isNvidia ? '93141680' : '28468922'}`, {
                 headers: {
                     'Client-ID': config.TWITCH_CLIENT_ID,
                     'Authorization': `Bearer ${authToken.data.access_token}`
