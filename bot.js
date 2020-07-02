@@ -164,7 +164,7 @@ const bot = async () => {
                     duration: video.duration,
                     started: videoStartDate,
                     thumbnail: video.thumbnail_url,
-                    public: false,
+                    public: isNvidia ? false : true,
                     highLights: videoHighLights
                 }
                 const videoTwitch = new FacebookVideo(facebookVideoData)
