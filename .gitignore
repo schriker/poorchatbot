@@ -1,7 +1,4 @@
 node_modules
-config.json
-config-host.json
-config-local.json
-config-copy.json
+config*.json
 og.js
 *.mp4
