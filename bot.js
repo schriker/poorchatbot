@@ -120,14 +120,14 @@ const bot = async () => {
             notifier.send(pong)
             return
         } 
-
+        console.log(message.data.stream.services)
         const newMessageStatus = message.data.stream.services.filter(service => service.streamer_id === 1).some(el => el.status === true)
         
         if (currentStatus !== newMessageStatus) {
             const date = new Date()
             currentStatus = newMessageStatus
             if (currentStatus) {
-                isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
+                // isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
                 isTwitch = message.data.stream.services.filter(service => service.name === 'twitch')[0].status
                 if (message.data.stream.services.filter(service => service.id === 'nvidiageforcepl').length > 0) {
                     isNvidia = message.data.stream.services.filter(service => service.id === 'nvidiageforcepl')[0].status
