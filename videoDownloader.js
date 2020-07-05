@@ -7,16 +7,7 @@ const FacebookVideo = require('./models/facebookVideo')
 let tryNumber = 0
 
 const videoDownloader = (video) => {
-    let comand
-    if (video.public === true) {
-      if (tryNumber > 15) {
-        comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -o "${video.facebookId}.%(ext)s"`
-      } else {
-        comand = `youtube-dl https://www.facebook.com/StrumienieZRuczaju/videos/${video.facebookId}/ -f "bestvideo[height=1080][ext=mp4]+bestaudio[ext=m4a]" -o "${video.facebookId}.%(ext)s"`
-      }
-    } else if (video.public === false) {
-      comand = `youtube-dl ${video.url} -o "${video.facebookId}.%(ext)s"`
-    }
+    let comand = `youtube-dl ${video.url} -o "${video.facebookId}.%(ext)s"`
     exec(comand, 
     async (error, stdout, stderr) => {
       try {
