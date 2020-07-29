@@ -151,7 +151,7 @@ const moments = () => {
     })
     .then(async () => {
       console.log('Contected to DB')
-      const videos = await FacebookVideo.find({ facebookId: '669032834' }).sort({createdAt: -1})
+      const videos = await FacebookVideo.find({ facebookId: '693292834' }).sort({createdAt: -1})
       console.log(videos.length)
 
       for (let video of videos){
@@ -204,6 +204,28 @@ const moments = () => {
 
 moments()
 
+
+// const replaceThumbs = () => {
+//   mongoose.connect(mongoHost, {
+//     useNewUrlParser: true,
+//     useFindAndModify: false,
+//     useUnifiedTopology: true
+//     })
+//     .then(async () => {
+//       console.log('Contected to DB')
+//       const videos = await FacebookVideo.find()
+//       for (let video of videos) {
+//         if (video.youTubeId) {
+//           video.thumbnail = `https://i.ytimg.com/vi/${video.youTubeId}/maxresdefault.jpg`
+//           await video.save()
+//           console.log(`Thumbnail changed:${video._id}`)
+//         }
+//       }
+//       console.log(videos.length)
+//     })
+//   }
+
+//   replaceThumbs()
 
 
     // setInterval(async () => {

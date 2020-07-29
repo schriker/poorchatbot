@@ -6,7 +6,6 @@ const CronJob = require('cron').CronJob
 
 const mongoHost = `mongodb://${config.DB_USERNAME}:${config.DB_PASS}@${config.DB_HOST}/${config.DB_NAME}`
 
-console.log('Contecting to DB...')
 mongoose.connect(mongoHost, {
   useNewUrlParser: true,
   useCreateIndex: true,
