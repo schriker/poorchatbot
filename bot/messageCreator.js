@@ -24,8 +24,6 @@ const messageCreator = (IRCMessage, date) => {
       subscriptiongifter: subscriptiongifter,
   }
 
-  console.log(messageData);
-
   if (date) {
     return {
       ...messageData,
