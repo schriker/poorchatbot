@@ -23,6 +23,7 @@
 
 const axios = require('axios')
 const mongoose = require('mongoose')
+const moment = require('moment')
 const qs = require('querystring')
 const config = require('./config.json')
 const Message = require('./models/message')
@@ -202,7 +203,38 @@ const moments = () => {
     })
 }
 
-moments()
+// moments()
+
+// const changeDurationFormat = () => {
+//   mongoose.connect(mongoHost, {
+//     useNewUrlParser: true,
+//     useFindAndModify: false,
+//     useUnifiedTopology: true
+//     })
+//     .then(async () => {
+//       console.log('Contected to DB')
+//       const videos = await FacebookVideo.find()
+//       for (let video of videos) {
+//           const duration_array = video.duration.split(/[hms]+/)
+//           const parsed = duration_array.filter(number => number !== '').map(number => {
+//             if (number.length === 1) {
+//               return `0${number}`
+//             } else {
+//               return number
+//             }
+//           })
+
+//           while(parsed.length < 3) {
+//             parsed.unshift('00')
+//           }
+//           video.duration = parsed.join(':');
+//           await video.save();
+//       }
+//       console.log(videos.length)
+//     })
+//   }
+
+  // changeDurationFormat()
 
 
 // const replaceThumbs = () => {

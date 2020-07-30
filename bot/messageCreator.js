@@ -7,11 +7,11 @@ const messageCreator = (IRCMessage, date) => {
   const author = IRCMessage.command === 'PRIVMSG' ? IRCMessage.prefix.split('!')[0] : 'irc.poorchat.net'
   
   if (IRCMessage.tags['poorchat.net/subscription']) {
-      subscription = JSON.parse(IRCMessage.tags['poorchat.net/subscription'].replace('\\s', ' ')).months
+      subscription = JSON.parse(IRCMessage.tags['poorchat.net/subscription'].replace(/\\s/g,'')).months
   }
 
   if (IRCMessage.tags['poorchat.net/subscriptiongifter']) {
-      subscriptiongifter = JSON.parse(IRCMessage.tags['poorchat.net/subscriptiongifter'].replace('\\s', ' ')).months
+      subscriptiongifter = JSON.parse(IRCMessage.tags['poorchat.net/subscriptiongifter'].replace(/\\s/g,'')).months
   }
 
   const messageData = {
@@ -23,6 +23,8 @@ const messageCreator = (IRCMessage, date) => {
       subscription: subscription,
       subscriptiongifter: subscriptiongifter,
   }
+
+  console.log(messageData);
 
   if (date) {
     return {
