@@ -18,6 +18,7 @@ const messageSchema = new Schema({
   },
   subscription: Number,
   subscriptiongifter: Number,
+  week_position: Number,
   }, 
   {
     timestamps: { 
