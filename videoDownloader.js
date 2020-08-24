@@ -27,7 +27,7 @@ const videoDownloader = (video) => {
             id: youTubeVideo.data.id
           }
         ]
-        videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.maxres.url
+        videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.maxres.url || ''
         videoInDatabase.save()
         tryNumber = 0
         console.log(`[Reuploaded] - ${video.videoId} - ${new Date()}`)
