@@ -165,6 +165,10 @@ const bot = async () => {
                   }
                 })
 
+                while(parsed.length < 3) {
+                    parsed.unshift('00')
+                }
+
                 facebookVideoData = {
                     videoId: video.id,
                     url: video.url,

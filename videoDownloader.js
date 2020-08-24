@@ -27,11 +27,12 @@ const videoDownloader = (video) => {
             id: youTubeVideo.data.id
           }
         ]
-        videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.maxres.url || ''
+        videoInDatabase.thumbnail = `https://i.ytimg.com/vi/${youTubeVideo.data.id}/maxresdefault.jpg`
         videoInDatabase.save()
         tryNumber = 0
         console.log(`[Reuploaded] - ${video.videoId} - ${new Date()}`)
       } catch (err) {
+        console.log(err)
         tryNumber = 0
         if (err.data.response) {
           if (err.data.response.status === 401 || err.data.response.status === 500) {
