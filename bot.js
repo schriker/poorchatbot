@@ -156,16 +156,31 @@ const bot = async () => {
                 })
                 const video = response.data.data[0]
 
+                const duration_array = video.duration.split(/[hms]+/)
+                const parsed = duration_array.filter(number => number !== '').map(number => {
+                  if (number.length === 1) {
+                    return `0${number}`
+                  } else {
+                    return number
+                  }
+                })
+
                 facebookVideoData = {
-                    facebookId: video.id,
+                    videoId: video.id,
                     url: video.url,
                     title: video.title,
                     views: video.view_count,
-                    duration: video.duration,
+                    duration: duration_array.length === 1 ? duration_array[0] : parsed.join(':'),
                     started: videoStartDate,
                     thumbnail: video.thumbnail_url,
-                    public: isNvidia ? false : true,
-                    highLights: videoHighLights
+                    public: true,
+                    highLights: videoHighLights,
+                    screenshots: [],
+                    source: [{
+                        name: 'twitch',
+                        id: video.id
+                    }],
+                    keywords: ''
                 }
                 const videoTwitch = new FacebookVideo(facebookVideoData)
                 const savedVideo = await videoTwitch.save()
@@ -185,7 +200,7 @@ const bot = async () => {
                 const facebookTitle = videoData.title.split('\n').filter(e => e !== '').join(' ')
 
                 facebookVideoData = {
-                    facebookId: videoData.videoID,
+                    videoId: videoData.videoID,
                     url: videoData.videoURL,
                     title: facebookTitle || videoTitle,
                     views: 0,
@@ -193,7 +208,13 @@ const bot = async () => {
                     started: videoStartDate,
                     thumbnail: videoData.thumbnailURI,
                     public: true,
-                    highLights: videoHighLights
+                    highLights: videoHighLights,
+                    screenshots: [],
+                    source: [{
+                        name: 'facebook',
+                        id: video.videoData.videoID
+                    }],
+                    keywords: ''
                 }
                 const video = new FacebookVideo(facebookVideoData)
                 const savedVideo = await video.save()

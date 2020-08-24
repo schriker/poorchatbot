@@ -1,25 +1,32 @@
 const mongoose = require('mongoose')
+const mongoosastic = require('mongoosastic')
 
 const Schema = mongoose.Schema
 
-const facebookVideoSchema = new Schema({
-  facebookId: String,
-  youTubeId: String,
-  url: String,
-  title: String,
-  thumbnail: String,
-  duration: String,
-  views: Number,
-  started: Date,
-  public: Boolean,
-  highLights: Array,
-  chatData: Array
+const facebookVideoSchema = new Schema(
+  {
+    videoId: { type: String, es_indexed: true },
+    url: String,
+    title: { type: String, es_indexed: true,  es_analyzer: 'autocomplete' },
+    thumbnail: String,
+    screenshots: Array,
+    source: Array,
+    duration: String,
+    views: Number,
+    started: Date,
+    public: { type: Boolean, es_indexed: true  },
+    highLights: Array,
+    chatData: Array,
+    keywords: { type: String, es_indexed: true, es_analyzer: 'autocomplete' },
   },
   {
-    timestamps: { 
+    timestamps: {
       createdAt: true,
-      updatedAt: false
-    }
-  })
+      updatedAt: false,
+    },
+  }
+)
 
-  module.exports = mongoose.model('wonziu_video', facebookVideoSchema)
+facebookVideoSchema.plugin(mongoosastic)
+
+module.exports = mongoose.model('wonziu_video', facebookVideoSchema)

@@ -32,7 +32,7 @@ const wykopNotifier = async () => {
         const splitTitle = removeBottomPart.split(/^\s*\n/gm)
         splitTitle.unshift('\n\n')
         const joinTitle = splitTitle.join('>')
-        postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/${video.facebookId}?platform=facebook (${platfrom})(**${video.duration}**)`
+        postBodyTemplate += `\n\n  　${numbers[index]} https://jarchiwum.pl/wonziu/video/${video.facebookId} (${platfrom})(**${video.duration}**)`
         postBodyTemplate += joinTitle
       })
       postBodyTemplate += `

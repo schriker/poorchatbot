@@ -7,7 +7,7 @@ const FacebookVideo = require('./models/facebookVideo')
 let tryNumber = 0
 
 const videoDownloader = (video) => {
-    let comand = `youtube-dl ${video.url} -o "${video.facebookId}.%(ext)s"`
+    let comand = `youtube-dl ${video.url} -o "${video.videoId}.%(ext)s"`
     exec(comand, 
     async (error, stdout, stderr) => {
       try {
@@ -17,14 +17,20 @@ const videoDownloader = (video) => {
             setTimeout(() => videoDownloader(video), 120000)
             return
           }
-        const youTubeVideo = await youtubeUpload(`${video.facebookId}.mp4`, video)
-        fs.unlinkSync(`${video.facebookId}.mp4`)
+        const youTubeVideo = await youtubeUpload(`${video.videoId}.mp4`, video)
+        fs.unlinkSync(`${video.videoId}.mp4`)
         const videoInDatabase = await FacebookVideo.findById(video._id)
-        videoInDatabase.youTubeId = youTubeVideo.data.id
-        videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.medium.url
+        videoInDatabase.source = [
+          ...videoInDatabase.source,
+          {
+            name: 'youtube',
+            id: youTubeVideo.data.id
+          }
+        ]
+        videoInDatabase.thumbnail = youTubeVideo.data.snippet.thumbnails.maxres.url
         videoInDatabase.save()
         tryNumber = 0
-        console.log(`[Reuploaded] - ${video.facebookId} - ${new Date()}`)
+        console.log(`[Reuploaded] - ${video.videoId} - ${new Date()}`)
       } catch (err) {
         tryNumber = 0
         if (err.data.response) {

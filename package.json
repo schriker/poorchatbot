@@ -21,6 +21,7 @@
     "lodash.merge": "^4.6.2",
     "md5": "^2.2.1",
     "moment": "^2.24.0",
+    "mongoosastic": "^4.6.0",
     "mongoose": "^5.7.7",
     "reconnecting-websocket": "^4.2.0",
     "saslprep": "^1.0.3",
