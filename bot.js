@@ -170,6 +170,8 @@ const bot = async () => {
                     parsed.unshift('00')
                 }
 
+                const exists = await FacebookVideo.find({ videoId: video.id })
+
                 facebookVideoData = {
                     videoId: video.id,
                     url: video.url,
@@ -187,12 +189,14 @@ const bot = async () => {
                     }],
                     keywords: ''
                 }
-                const videoTwitch = new FacebookVideo(facebookVideoData)
-                const savedVideo = await videoTwitch.save()
-                countChatData(savedVideo._id)
-                console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`)
-                videoDownloader(savedVideo)
-                fetchTwitchMessages(savedVideo.videoId)
+                if (exists.length === 0) {
+                    const videoTwitch = new FacebookVideo(facebookVideoData)
+                    const savedVideo = await videoTwitch.save()
+                    countChatData(savedVideo._id)
+                    console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`)
+                    videoDownloader(savedVideo)
+                    fetchTwitchMessages(savedVideo.videoId)
+                }
                 isNvidia = false
                 isTwitch = false
             } catch (err) {
