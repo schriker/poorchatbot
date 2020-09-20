@@ -12,6 +12,7 @@ const messageCreator = require('./bot/messageCreator')
 const countChatData = require('./bot/countChatData')
 const modeHandler = require('./bot/modeHandler')
 const videoDownloader = require('./videoDownloader')
+const fetchTwitchMessages = require('./twitchMessages')
 
 const bot = async () => {
     let message = {
@@ -191,6 +192,7 @@ const bot = async () => {
                 countChatData(savedVideo._id)
                 console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`)
                 videoDownloader(savedVideo)
+                fetchTwitchMessages(savedVideo.videoId)
                 isNvidia = false
                 isTwitch = false
             } catch (err) {
