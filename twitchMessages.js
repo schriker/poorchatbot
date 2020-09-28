@@ -76,7 +76,7 @@ const removeDuplicates = async () => {
   })
 }
 
-// connect(() => fetchTwitchMessages(''));
+connect(() => fetchTwitchMessages(751678611));
 // connect(removeDuplicates);
 
 module.exports = fetchTwitchMessages;

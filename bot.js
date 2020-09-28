@@ -178,7 +178,7 @@ const bot = async () => {
                     title: video.title,
                     views: video.view_count,
                     duration: duration_array.length === 1 ? duration_array[0] : parsed.join(':'),
-                    started: videoStartDate,
+                    started: video.created_at,
                     thumbnail: video.thumbnail_url,
                     public: true,
                     highLights: videoHighLights,
