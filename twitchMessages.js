@@ -71,12 +71,12 @@ const removeDuplicates = async () => {
       await Message.deleteOne({ _id: message._id })
       console.log('Duplikat:', message.body)
     } else {
-      // console.log('Nie:', message.body);
+      console.log('Nie:', message.body);
     }
   })
 }
 
-connect(() => fetchTwitchMessages(751678611));
+// connect(() => fetchTwitchMessages(751678611));
 // connect(removeDuplicates);
 
 module.exports = fetchTwitchMessages;
