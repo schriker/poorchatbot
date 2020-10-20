@@ -13,6 +13,7 @@ const countChatData = require('./bot/countChatData')
 const modeHandler = require('./bot/modeHandler')
 const videoDownloader = require('./videoDownloader')
 const fetchTwitchMessages = require('./twitchMessages')
+const koronaVote = require('./bot/koronaVote')
 
 const bot = async () => {
     let message = {
@@ -111,6 +112,7 @@ const bot = async () => {
     
     console.log('Working...')
     client.on('message', messageHandler)
+    client.on('message', (message) => koronaVote(message, client))
     client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage))
 
     notifier.addEventListener('message', async (response) => {
