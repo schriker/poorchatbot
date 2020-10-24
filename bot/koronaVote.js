@@ -1,6 +1,8 @@
 const messageCreator = require('./messageCreator');
 const Korona = require('../models/korona');
 
+let isOpen = true;
+
 const findWinner = (votes, score) => {
   const closest = votes.reduce((a, b) => {
     return Math.abs(b.amount - score) < Math.abs(a.amount - score) ? b : a;
@@ -16,13 +18,18 @@ const koronaVote = async (IRCMessage, client) => {
   const messageData = messageCreator(IRCMessage);
   const isAdmin = messageData.author === 'schriker';
   const trimedBody = messageData.body.trim();
-  const comand = trimedBody.match(/^\!(\b\w+\b)\s+(\b\d+\b)/);
+  const comand = trimedBody.match(/^\!(\b\w+\b)(\s+\b\d+\b)?/);
 
   if (comand) {
     switch (comand[1]) {
       case 'korona':
+        if (!isOpen) {
+          return;
+        }
+
         const alreadyVoted = await Korona.find({ user: messageData.author });
         const amountTaken = await Korona.find({ amount: comand[2] });
+
         if (alreadyVoted.length) {
           client.pm(messageData.author, 'Dzisiaj już głosowałeś.');
         } else if (amountTaken.length) {
@@ -40,8 +47,18 @@ const koronaVote = async (IRCMessage, client) => {
         if (isAdmin) {
           const votes = await Korona.find({});
           const winner = findWinner(votes, comand[2]);
-          client.say(`Wygrywa ${winner.user} z wynikiem: ${winner.amount} Clap`);
+          client.say(
+            `Wygrywa ${winner.user} z wynikiem: ${winner.amount} Clap`
+          );
           await Korona.deleteMany({});
+          isOpen = true;
+        }
+        break;
+      case 'stop':
+        if (isAdmin) {
+          isOpen = false;
+          const votes = await Korona.find({});
+          client.say(`Do losowania zapisało się: ${votes.length} osób.`);
         }
         break;
     }
