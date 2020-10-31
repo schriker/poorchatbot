@@ -34,7 +34,7 @@ const koronaVote = async (IRCMessage, client) => {
           client.pm(messageData.author, 'Dzisiaj już głosowałeś.');
         } else if (amountTaken.length) {
           client.pm(messageData.author, 'Ktoś już postawił na ten wynik.');
-        } else {
+        } else if (comand[2]) {
           const newVote = new Korona({
             user: messageData.author,
             amount: comand[2],
