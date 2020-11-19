@@ -14,7 +14,7 @@ const findWinner = (votes, score) => {
   };
 };
 
-const koronaVote = async (IRCMessage, client) => {
+exports.koronaVote = async (IRCMessage, client) => {
   const messageData = messageCreator(IRCMessage);
   const isAdmin = messageData.author === 'schriker';
   const trimedBody = messageData.body.trim();
@@ -54,15 +54,12 @@ const koronaVote = async (IRCMessage, client) => {
           isOpen = true;
         }
         break;
-      case 'stop':
-        if (isAdmin) {
-          isOpen = false;
-          const votes = await Korona.find({});
-          client.say(`Do losowania zapisało się: ${votes.length} osób.`);
-        }
-        break;
     }
   }
 };
 
-module.exports = koronaVote;
+exports.stopKoronaVote = async (client) => {
+  isOpen = false;
+  const votes = await Korona.find({});
+  client.say(`Do losowania zapisało się: ${votes.length} osób.`);
+};

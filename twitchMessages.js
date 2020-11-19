@@ -62,21 +62,25 @@ const connect = (afterConnectCallback) => {
 };
 
 const removeDuplicates = async () => {
-  const messages = await Message.find({ type: 'TWITCH' }).sort({ createdAt: -1 })
-  console.log(messages.length)
-  messages.forEach(async message => {
-    if (messages.some(el => {
-      return el.body === message.body && el._id !== message._id
-    })) {
-      await Message.deleteOne({ _id: message._id })
-      console.log('Duplikat:', message.body)
+  const messages = await Message.find({ type: 'TWITCH' }).sort({
+    createdAt: -1,
+  });
+  console.log(messages.length);
+  messages.forEach(async (message) => {
+    if (
+      messages.some((el) => {
+        return el.body === message.body && el._id !== message._id;
+      })
+    ) {
+      await Message.deleteOne({ _id: message._id });
+      console.log('Duplikat:', message.body);
     } else {
       console.log('Nie:', message.body);
     }
-  })
-}
+  });
+};
 
-// connect(() => fetchTwitchMessages(784609569));
+// connect(() => fetchTwitchMessages(806291281));
 // connect(removeDuplicates);
 
 module.exports = fetchTwitchMessages;

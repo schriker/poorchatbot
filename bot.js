@@ -13,7 +13,8 @@ const countChatData = require('./bot/countChatData');
 const modeHandler = require('./bot/modeHandler');
 const videoDownloader = require('./videoDownloader');
 const fetchTwitchMessages = require('./twitchMessages');
-const koronaVote = require('./bot/koronaVote');
+const { koronaVote, stopKoronaVote } = require('./bot/koronaVote');
+const CronJob = require('cron').CronJob;
 
 const bot = async () => {
   let message = {
@@ -117,9 +118,22 @@ const bot = async () => {
 
   console.log('Working...');
   client.on('message', messageHandler);
-  client.on('message', (message) => koronaVote(message, client));
   client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage));
-
+  // Korona
+  client.on('message', (message) => koronaVote(message, client));
+  try {
+    new CronJob(
+      '00 25 09 * * *',
+      () => {
+        stopKoronaVote(client);
+      },
+      null,
+      true
+    );
+  } catch (cronerr) {
+    console.log('Invalid cron');
+  }
+  // Korona
   notifier.addEventListener('message', async (response) => {
     const data = JSON.parse(response.data);
     message = merge(message, data);
@@ -133,11 +147,11 @@ const bot = async () => {
       .filter((service) => service.streamer_id === 1)
       .some((el) => el.status === true);
 
-      if (currentStatus !== newMessageStatus) {
+    if (currentStatus !== newMessageStatus) {
       const date = new Date();
       currentStatus = newMessageStatus;
       if (currentStatus) {
-        // isFacebook = message.data.stream.services.filter(service => service.name === 'facebook')[0].status
+        // Filter and grab only one with status = true and put service.name to twitchChanelName const ^
         isTwitch = message.data.stream.services.filter(
           (service) => service.name === 'twitch'
         )[0].status;
@@ -170,6 +184,9 @@ const bot = async () => {
   });
 
   const searchFacebookVideo = async (videoTitle) => {
+    // 1 .Check if twitchChanelName is not null
+    // 2. Query chanel id by name on https://api.jarchiwum.pl/users?login=wonziu
+    // 3. Query latest video by user id on https://api.jarchiwum.pl/videos_twitch?user_id=28468922
     if (videoStartDate && (isNvidia || isTwitch || isGeekTechMediaPL)) {
       try {
         const authToken = await axios.post(
