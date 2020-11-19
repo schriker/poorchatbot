@@ -47,6 +47,11 @@ exports.koronaVote = async (IRCMessage, client) => {
         if (isAdmin) {
           const votes = await Korona.find({});
           const winner = findWinner(votes, comand[2]);
+          console.log(votes, winner);
+          client.pm(
+            messageData.author,
+            `Wygrywa ${winner.user} z wynikiem: ${winner.amount} Clap`
+          );
           client.say(
             `Wygrywa ${winner.user} z wynikiem: ${winner.amount} Clap`
           );
