@@ -80,7 +80,7 @@ const removeDuplicates = async () => {
   });
 };
 
-// connect(() => fetchTwitchMessages(806291281));
+// connect(() => fetchTwitchMessages(808500765));
 // connect(removeDuplicates);
 
 module.exports = fetchTwitchMessages;

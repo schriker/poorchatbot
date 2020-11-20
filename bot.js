@@ -35,10 +35,7 @@ const bot = async () => {
       },
     },
   };
-  let isFacebook = false;
-  let isNvidia = false;
-  let isTwitch = false;
-  let isGeekTechMediaPL = false;
+  let twitchLogin = null;
   let currentStatus = null;
   let videoStartDate = null;
   let facebookVideoData = {};
@@ -151,31 +148,13 @@ const bot = async () => {
       const date = new Date();
       currentStatus = newMessageStatus;
       if (currentStatus) {
-        // Filter and grab only one with status = true and put service.name to twitchChanelName const ^
-        isTwitch = message.data.stream.services.filter(
-          (service) => service.name === 'twitch'
-        )[0].status;
-        if (
-          message.data.stream.services.filter(
-            (service) => service.id === 'nvidiageforcepl'
-          ).length > 0
-        ) {
-          isNvidia = message.data.stream.services.filter(
-            (service) => service.id === 'nvidiageforcepl'
-          )[0].status;
-        }
-        if (
-          message.data.stream.services.filter(
-            (service) => service.id === 'geektechmediapl'
-          ).length > 0
-        ) {
-          isGeekTechMediaPL = message.data.stream.services.filter(
-            (service) => service.id === 'geektechmediapl'
-          )[0].status;
-        }
+        const service = message.data.stream.services.find(
+          (service) => service.status === true
+        );
+        twitchLogin = service.id;
         videoHighLights = [];
         videoStartDate = date;
-        console.log(`Stream: [Online] - ${date}`);
+        console.log(`Stream: [Online] - ${date} - ${twitchLogin}`);
       } else if (!currentStatus) {
         console.log(`Stream: [Offline] - ${date}`);
         searchFacebookVideo(message.data.topic.text);
@@ -184,25 +163,16 @@ const bot = async () => {
   });
 
   const searchFacebookVideo = async (videoTitle) => {
-    // 1 .Check if twitchChanelName is not null
-    // 2. Query chanel id by name on https://api.jarchiwum.pl/users?login=wonziu
-    // 3. Query latest video by user id on https://api.jarchiwum.pl/videos_twitch?user_id=28468922
-    if (videoStartDate && (isNvidia || isTwitch || isGeekTechMediaPL)) {
+    if (videoStartDate && twitchLogin) {
+      console.log('Test')
       try {
-        const authToken = await axios.post(
-          `https://id.twitch.tv/oauth2/token?client_id=${config.TWITCH_CLIENT_ID}&client_secret=${config.TWITCH_SECRET}&grant_type=client_credentials`
+        const channelId = await axios.get(
+          `https://api.jarchiwum.pl/users?login=${twitchLogin}`
         );
         const response = await axios.get(
-          `https://api.twitch.tv/helix/videos?user_id=${
-            isNvidia ? '93141680' : isTwitch ? '28468922' : '52268952'
-          }`,
-          {
-            headers: {
-              'Client-ID': config.TWITCH_CLIENT_ID,
-              Authorization: `Bearer ${authToken.data.access_token}`,
-            },
-          }
+          `https://api.jarchiwum.pl/videos_twitch?user_id=${channelId.data.data[0].id}`
         );
+
         const video = response.data.data[0];
 
         const duration_array = video.duration.split(/[hms]+/);
@@ -221,7 +191,8 @@ const bot = async () => {
         }
 
         const exists = await FacebookVideo.find({ videoId: video.id });
-
+        
+        if (exists.length === 0) {
         facebookVideoData = {
           videoId: video.id,
           url: video.url,
@@ -242,7 +213,6 @@ const bot = async () => {
           ],
           keywords: '',
         };
-        if (exists.length === 0) {
           const videoTwitch = new FacebookVideo(facebookVideoData);
           const savedVideo = await videoTwitch.save();
           countChatData(savedVideo._id);
@@ -250,51 +220,9 @@ const bot = async () => {
           videoDownloader(savedVideo);
           fetchTwitchMessages(savedVideo.videoId);
         }
-        isNvidia = false;
-        isTwitch = false;
+        twitchLogin = null;
       } catch (err) {
         console.log(err);
-      }
-    }
-    if (videoStartDate && isFacebook) {
-      try {
-        const response = await axios.get(
-          'https://www.facebook.com/pages/videos/search/?page_id=369632869905557&__a'
-        );
-        const videoData = JSON.parse(response.data.split('for (;;);')[1])
-          .payload.page.video_data[0];
-        const facebookTitle = videoData.title
-          .split('\n')
-          .filter((e) => e !== '')
-          .join(' ');
-
-        facebookVideoData = {
-          videoId: videoData.videoID,
-          url: videoData.videoURL,
-          title: facebookTitle || videoTitle,
-          views: 0,
-          duration: msToTime(new Date() - videoStartDate),
-          started: videoStartDate,
-          thumbnail: videoData.thumbnailURI,
-          public: true,
-          highLights: videoHighLights,
-          screenshots: [],
-          source: [
-            {
-              name: 'facebook',
-              id: video.videoData.videoID,
-            },
-          ],
-          keywords: '',
-        };
-        const video = new FacebookVideo(facebookVideoData);
-        const savedVideo = await video.save();
-        countChatData(savedVideo._id);
-        console.log(`[Facebook Vide Saved] - ${facebookVideoData.title}`);
-        videoDownloader(savedVideo);
-        isFacebook = false;
-      } catch (error) {
-        console.log(error);
       }
     }
   };
