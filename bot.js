@@ -35,7 +35,7 @@ const bot = async () => {
       },
     },
   };
-  let twitchLogin = null;
+  let service = null;
   let currentStatus = null;
   let videoStartDate = null;
   let facebookVideoData = {};
@@ -151,10 +151,9 @@ const bot = async () => {
         const service = message.data.stream.services.find(
           (service) => service.status === true
         );
-        twitchLogin = service.id;
         videoHighLights = [];
         videoStartDate = date;
-        console.log(`Stream: [Online] - ${date} - ${twitchLogin}`);
+        console.log(`Stream: [Online] - ${date} - ${service.id}`);
       } else if (!currentStatus) {
         console.log(`Stream: [Offline] - ${date}`);
         searchFacebookVideo(message.data.topic.text);
@@ -163,11 +162,10 @@ const bot = async () => {
   });
 
   const searchFacebookVideo = async (videoTitle) => {
-    if (videoStartDate && twitchLogin) {
-      console.log('Test')
+    if (videoStartDate && service.name === 'twitch') {
       try {
         const channelId = await axios.get(
-          `https://api.jarchiwum.pl/users?login=${twitchLogin}`
+          `https://api.jarchiwum.pl/users?login=${service.id}`
         );
         const response = await axios.get(
           `https://api.jarchiwum.pl/videos_twitch?user_id=${channelId.data.data[0].id}`
@@ -191,28 +189,30 @@ const bot = async () => {
         }
 
         const exists = await FacebookVideo.find({ videoId: video.id });
-        
+
         if (exists.length === 0) {
-        facebookVideoData = {
-          videoId: video.id,
-          url: video.url,
-          title: video.title,
-          views: video.view_count,
-          duration:
-            duration_array.length === 1 ? duration_array[0] : parsed.join(':'),
-          started: video.created_at,
-          thumbnail: video.thumbnail_url,
-          public: true,
-          highLights: videoHighLights,
-          screenshots: [],
-          source: [
-            {
-              name: 'twitch',
-              id: video.id,
-            },
-          ],
-          keywords: '',
-        };
+          facebookVideoData = {
+            videoId: video.id,
+            url: video.url,
+            title: video.title,
+            views: video.view_count,
+            duration:
+              duration_array.length === 1
+                ? duration_array[0]
+                : parsed.join(':'),
+            started: video.created_at,
+            thumbnail: video.thumbnail_url,
+            public: true,
+            highLights: videoHighLights,
+            screenshots: [],
+            source: [
+              {
+                name: 'twitch',
+                id: video.id,
+              },
+            ],
+            keywords: '',
+          };
           const videoTwitch = new FacebookVideo(facebookVideoData);
           const savedVideo = await videoTwitch.save();
           countChatData(savedVideo._id);
@@ -220,7 +220,7 @@ const bot = async () => {
           videoDownloader(savedVideo);
           fetchTwitchMessages(savedVideo.videoId);
         }
-        twitchLogin = null;
+        service = null;
       } catch (err) {
         console.log(err);
       }
