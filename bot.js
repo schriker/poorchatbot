@@ -148,7 +148,7 @@ const bot = async () => {
       const date = new Date();
       currentStatus = newMessageStatus;
       if (currentStatus) {
-        const service = message.data.stream.services.find(
+        service = message.data.stream.services.find(
           (service) => service.status === true
         );
         videoHighLights = [];
