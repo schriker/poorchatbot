@@ -50,10 +50,10 @@ exports.koronaVote = async (IRCMessage, client) => {
           console.log(votes, winner);
           client.pm(
             messageData.author,
-            `Wygrywa ${winner.user} z wynikiem: ${winner.amount} Clap`
+            `Wygrał ${winner.user} z wynikiem: ${winner.amount} Clap`
           );
           client.say(
-            `Wygrywa ${winner.user} z wynikiem: ${winner.amount} Clap`
+            `Wygrał ${winner.user} z wynikiem: ${winner.amount} Clap`
           );
           await Korona.deleteMany({});
           isOpen = true;
