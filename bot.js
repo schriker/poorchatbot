@@ -223,35 +223,53 @@ const bot = async () => {
             fetchTwitchMessages(savedVideo.videoId);
           }
         } else {
-          //  const youTubeResult = await getYouTubeLatestStream();
-          // const exists = await FacebookVideo.find({ videoId: video.id });
+          const video = await getYouTubeLatestStream();
+          const exists = await FacebookVideo.find({ videoId: video.id });
 
           if (exists.length === 0) {
+            const duration_array = video.contentDetails.duration
+              .split('PT')
+              .pop()
+              .toLowerCase()
+              .split(/[hms]+/);
+            const parsed = duration_array
+              .filter((number) => number !== '')
+              .map((number) => {
+                if (number.length === 1) {
+                  return `0${number}`;
+                } else {
+                  return number;
+                }
+              });
+
+            while (parsed.length < 3) {
+              parsed.unshift('00');
+            }
+
             facebookVideoData = {
-              videoId: '',
-              url: '',
-              title: '',
-              views: '',
-              duration: '',
-              started: videoStartDate,
-              thumbnail: '',
+              videoId: video.id,
+              url: `https://www.youtube.com/watch?v=${video.id}`,
+              title: video.snippet.title,
+              views: 0,
+              duration: parsed.join(':'),
+              started: video.liveStreamingDetails.actualStartTime,
+              thumbnail: `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
               public: true,
               highLights: videoHighLights,
               screenshots: [],
               source: [
                 {
                   name: 'youtube',
-                  id: '',
+                  id: video.id,
                 },
               ],
               keywords: '',
             };
+
             const videoTwitch = new FacebookVideo(facebookVideoData);
             const savedVideo = await videoTwitch.save();
             countChatData(savedVideo._id);
-            console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`);
-            videoDownloader(savedVideo);
-            fetchTwitchMessages(savedVideo.videoId);
+            console.log(`[YouTube Video Saved] - ${facebookVideoData.title}`);
           }
         }
         service = null;

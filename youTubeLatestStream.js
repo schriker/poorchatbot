@@ -24,9 +24,17 @@ const getYouTubeLatestStream = () => {
         type: ['video'],
       });
 
-      console.log(result.data.items);
+      const videoDetails = await youtube.videos.list({
+        part: ['snippet', 'contentDetails', 'liveStreamingDetails'],
+        id: result.data.items[0].id.videoId,
+      });
+
+      const [videoFromYouTube] = videoDetails.data.items;
+
+      resolve(videoFromYouTube);
     } catch (err) {
       console.log(err);
+      reject();
     }
   });
 };
