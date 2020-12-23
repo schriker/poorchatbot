@@ -1,27 +1,30 @@
-const axios = require('axios')
-const config = require('./config.json')
-const fs = require('fs')
-const { google } = require('googleapis')
-const moment = require('moment')
+const axios = require('axios');
+const config = require('./config.json');
+const fs = require('fs');
+const { google } = require('googleapis');
+const moment = require('moment');
 
 const getAccessToken = () => {
-  return new Promise( async (resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const { data } = await axios.post('https://www.googleapis.com/oauth2/v4/token', {
-        client_id: config.YT_API.CLIENT_ID,
-        client_secret: config.YT_API.CLIENT_SECRET,
-        refresh_token: config.YT_API.REFRESH_TOKEN,
-        grant_type: 'refresh_token'
-      })
+      const { data } = await axios.post(
+        'https://www.googleapis.com/oauth2/v4/token',
+        {
+          client_id: config.YT_API.CLIENT_ID,
+          client_secret: config.YT_API.CLIENT_SECRET,
+          refresh_token: config.YT_API.REFRESH_TOKEN,
+          grant_type: 'refresh_token',
+        }
+      );
       resolve({
         refresh_token: config.YT_API.REFRESH_TOKEN,
-        ...data
-      })
+        ...data,
+      });
     } catch (err) {
-      reject(err)
+      reject(err);
     }
-  })
-}
+  });
+};
 
 const youtubeUpload = (fileName, facebookVideo) => {
   return new Promise(async (resolve, reject) => {
@@ -30,15 +33,18 @@ const youtubeUpload = (fileName, facebookVideo) => {
         config.YT_API.CLIENT_ID,
         config.YT_API.CLIENT_SECRET,
         'https://developers.google.com/oauthplayground'
-      )
-      oAuthClient.credentials= await getAccessToken()
-  
+      );
+      oAuthClient.credentials = await getAccessToken();
+
       const youtube = google.youtube({
         version: 'v3',
-        auth: oAuthClient
-      })
+        auth: oAuthClient,
+      });
 
-      const startDate = moment(facebookVideo.started).add(2, 'hours').locale('pl').format('DD MMMM YYYY (H:mm)')
+      const startDate = moment(facebookVideo.started)
+        .add(2, 'hours')
+        .locale('pl')
+        .format('DD MMMM YYYY (H:mm)');
 
       const videoDesc = `Całe archiwum strumieni: https://www.youtube.com/playlist?list=PLWbAUhvm4h-Mz9YKtMZQX2xAR_dzlklUv
 oraz na stronie https://jarchiwum.pl
@@ -61,33 +67,37 @@ https://www.grindpeace.com/
 
 Pozdrawiam,
 m.
-${facebookVideo.facebookId}`
-  
+${facebookVideo.facebookId}`;
+
       const video = await youtube.videos.insert({
         part: 'id,snippet,status',
         notifySubscribers: false,
         requestBody: {
           snippet: {
             title: `Archiwum strumieni - ${startDate}`,
-            description: videoDesc
+            description: videoDesc,
           },
           status: {
-            privacyStatus: 'unlisted'
-          }
+            privacyStatus: 'unlisted',
+          },
         },
         media: {
-          body: fs.createReadStream(fileName)
-        }
-      })
-      resolve(video)
+          body: fs.createReadStream(fileName),
+        },
+      });
+      resolve(video);
     } catch (err) {
-        const error = {
-          data: err,
-          facebookVideo: facebookVideo 
-        }
-        reject(error)
+      const error = {
+        data: err,
+        facebookVideo: facebookVideo,
+      };
+      reject(error);
     }
-  })
-}
+  });
+};
 
-module.exports = youtubeUpload
+// module.exports = youtubeUpload
+module.exports = {
+  youtubeUpload,
+  getAccessToken,
+};

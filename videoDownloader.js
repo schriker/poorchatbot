@@ -1,7 +1,7 @@
 const fs = require('fs')
 const moment = require('moment')
 const { exec } = require('child_process')
-const youtubeUpload = require('./youtubeUpload')
+const { youtubeUpload } = require('./youtubeUpload')
 const FacebookVideo = require('./models/facebookVideo')
 
 let tryNumber = 0

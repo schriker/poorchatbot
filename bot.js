@@ -14,6 +14,7 @@ const modeHandler = require('./bot/modeHandler');
 const videoDownloader = require('./videoDownloader');
 const fetchTwitchMessages = require('./twitchMessages');
 const { koronaVote, stopKoronaVote } = require('./bot/koronaVote');
+const getYouTubeLatestStream = require('./youTubeLatestStream');
 const CronJob = require('cron').CronJob;
 
 const bot = async () => {
@@ -164,61 +165,94 @@ const bot = async () => {
   const searchFacebookVideo = async (videoTitle) => {
     if (videoStartDate && service.name === 'twitch') {
       try {
-        const channelId = await axios.get(
-          `https://api.jarchiwum.pl/users?login=${service.id}`
-        );
-        const response = await axios.get(
-          `https://api.jarchiwum.pl/videos_twitch?user_id=${channelId.data.data[0].id}`
-        );
+        if (service.id !== 'wonziu') {
+          const channelId = await axios.get(
+            `https://api.jarchiwum.pl/users?login=${service.id}`
+          );
+          const response = await axios.get(
+            `https://api.jarchiwum.pl/videos_twitch?user_id=${channelId.data.data[0].id}`
+          );
 
-        const video = response.data.data[0];
+          const video = response.data.data[0];
 
-        const duration_array = video.duration.split(/[hms]+/);
-        const parsed = duration_array
-          .filter((number) => number !== '')
-          .map((number) => {
-            if (number.length === 1) {
-              return `0${number}`;
-            } else {
-              return number;
-            }
-          });
+          const duration_array = video.duration.split(/[hms]+/);
+          const parsed = duration_array
+            .filter((number) => number !== '')
+            .map((number) => {
+              if (number.length === 1) {
+                return `0${number}`;
+              } else {
+                return number;
+              }
+            });
 
-        while (parsed.length < 3) {
-          parsed.unshift('00');
-        }
+          while (parsed.length < 3) {
+            parsed.unshift('00');
+          }
 
-        const exists = await FacebookVideo.find({ videoId: video.id });
+          const exists = await FacebookVideo.find({ videoId: video.id });
 
-        if (exists.length === 0) {
-          facebookVideoData = {
-            videoId: video.id,
-            url: video.url,
-            title: video.title,
-            views: video.view_count,
-            duration:
-              duration_array.length === 1
-                ? duration_array[0]
-                : parsed.join(':'),
-            started: video.created_at,
-            thumbnail: video.thumbnail_url,
-            public: true,
-            highLights: videoHighLights,
-            screenshots: [],
-            source: [
-              {
-                name: 'twitch',
-                id: video.id,
-              },
-            ],
-            keywords: '',
-          };
-          const videoTwitch = new FacebookVideo(facebookVideoData);
-          const savedVideo = await videoTwitch.save();
-          countChatData(savedVideo._id);
-          console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`);
-          videoDownloader(savedVideo);
-          fetchTwitchMessages(savedVideo.videoId);
+          if (exists.length === 0) {
+            facebookVideoData = {
+              videoId: video.id,
+              url: video.url,
+              title: video.title,
+              views: video.view_count,
+              duration:
+                duration_array.length === 1
+                  ? duration_array[0]
+                  : parsed.join(':'),
+              started: video.created_at,
+              thumbnail: video.thumbnail_url,
+              public: true,
+              highLights: videoHighLights,
+              screenshots: [],
+              source: [
+                {
+                  name: 'twitch',
+                  id: video.id,
+                },
+              ],
+              keywords: '',
+            };
+            const videoTwitch = new FacebookVideo(facebookVideoData);
+            const savedVideo = await videoTwitch.save();
+            countChatData(savedVideo._id);
+            console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`);
+            videoDownloader(savedVideo);
+            fetchTwitchMessages(savedVideo.videoId);
+          }
+        } else {
+          //  const youTubeResult = await getYouTubeLatestStream();
+          // const exists = await FacebookVideo.find({ videoId: video.id });
+
+          if (exists.length === 0) {
+            facebookVideoData = {
+              videoId: '',
+              url: '',
+              title: '',
+              views: '',
+              duration: '',
+              started: videoStartDate,
+              thumbnail: '',
+              public: true,
+              highLights: videoHighLights,
+              screenshots: [],
+              source: [
+                {
+                  name: 'youtube',
+                  id: '',
+                },
+              ],
+              keywords: '',
+            };
+            const videoTwitch = new FacebookVideo(facebookVideoData);
+            const savedVideo = await videoTwitch.save();
+            countChatData(savedVideo._id);
+            console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`);
+            videoDownloader(savedVideo);
+            fetchTwitchMessages(savedVideo.videoId);
+          }
         }
         service = null;
       } catch (err) {
