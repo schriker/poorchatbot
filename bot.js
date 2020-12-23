@@ -163,9 +163,9 @@ const bot = async () => {
   });
 
   const searchFacebookVideo = async (videoTitle) => {
-    if (videoStartDate && service.name === 'twitch') {
+    if (videoStartDate && (service.name === 'twitch' || service.name === 'youtube')) {
       try {
-        if (service.id !== 'wonziu') {
+        if (service.name === 'twitch') {
           const channelId = await axios.get(
             `https://api.jarchiwum.pl/users?login=${service.id}`
           );
