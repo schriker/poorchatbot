@@ -14,7 +14,10 @@ const modeHandler = require('./bot/modeHandler');
 const videoDownloader = require('./videoDownloader');
 const fetchTwitchMessages = require('./twitchMessages');
 const { koronaVote, stopKoronaVote } = require('./bot/koronaVote');
-const getYouTubeLatestStream = require('./youTubeLatestStream');
+const {
+  getCurrentYTStream,
+  getYTVideoDetials,
+} = require('./youTubeLatestStream');
 const CronJob = require('cron').CronJob;
 
 const bot = async () => {
@@ -36,6 +39,8 @@ const bot = async () => {
       },
     },
   };
+  let YTVideoId = null;
+  let YTChatId = null;
   let service = null;
   let currentStatus = null;
   let videoStartDate = null;
@@ -154,6 +159,13 @@ const bot = async () => {
         );
         videoHighLights = [];
         videoStartDate = date;
+
+        if (service.name === 'youtube') {
+          const [YTStream] = await getCurrentYTStream();
+          YTChatId = YTStream.id;
+          YTVideoId = YTStream.snippet.liveChatId;
+        }
+
         console.log(`Stream: [Online] - ${date} - ${service.id}`);
       } else if (!currentStatus) {
         console.log(`Stream: [Offline] - ${date}`);
@@ -163,7 +175,10 @@ const bot = async () => {
   });
 
   const searchFacebookVideo = async (videoTitle) => {
-    if (videoStartDate && (service.name === 'twitch' || service.name === 'youtube')) {
+    if (
+      videoStartDate &&
+      (service.name === 'twitch' || service.name === 'youtube')
+    ) {
       try {
         if (service.name === 'twitch') {
           const channelId = await axios.get(
@@ -223,7 +238,7 @@ const bot = async () => {
             fetchTwitchMessages(savedVideo.videoId);
           }
         } else {
-          const video = await getYouTubeLatestStream();
+          const video = await getYTVideoDetials(YTVideoId);
           const exists = await FacebookVideo.find({ videoId: video.id });
 
           if (exists.length === 0) {
@@ -253,7 +268,7 @@ const bot = async () => {
               views: 0,
               duration: parsed.join(':'),
               started: video.liveStreamingDetails.actualStartTime,
-              thumbnail: `https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`,
+              thumbnail: `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`,
               public: true,
               highLights: videoHighLights,
               screenshots: [],
