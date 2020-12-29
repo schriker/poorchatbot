@@ -157,7 +157,6 @@ const bot = async () => {
         service = message.data.stream.services.find(
           (service) => service.status === true
         );
-        videoHighLights = [];
         videoStartDate = date;
 
         if (service.name === 'youtube') {
@@ -232,6 +231,7 @@ const bot = async () => {
             };
             const videoTwitch = new FacebookVideo(facebookVideoData);
             const savedVideo = await videoTwitch.save();
+            videoHighLights = [];
             countChatData(savedVideo._id);
             console.log(`[Twitch Video Saved] - ${facebookVideoData.title}`);
             videoDownloader(savedVideo);
@@ -241,7 +241,7 @@ const bot = async () => {
           const video = await getYTVideoDetials(YTVideoId);
           const exists = await FacebookVideo.find({ videoId: video.id });
 
-          if (exists.length === 0) {
+          if (exists.length === 0 && video.liveStreamingDetails.actualEndTime) {
             const duration_array = video.contentDetails.duration
               .split('PT')
               .pop()
@@ -283,6 +283,7 @@ const bot = async () => {
 
             const videoTwitch = new FacebookVideo(facebookVideoData);
             const savedVideo = await videoTwitch.save();
+            videoHighLights = [];
             countChatData(savedVideo._id);
             console.log(`[YouTube Video Saved] - ${facebookVideoData.title}`);
           }
