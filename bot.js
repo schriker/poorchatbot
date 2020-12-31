@@ -161,6 +161,7 @@ const bot = async () => {
 
         if (service.name === 'youtube') {
           const [YTStream] = await getCurrentYTStream();
+          console.log(YTStream);
           YTChatId = YTStream.id;
           YTVideoId = YTStream.snippet.liveChatId;
         }
@@ -239,6 +240,7 @@ const bot = async () => {
           }
         } else {
           const video = await getYTVideoDetials(YTVideoId);
+          console.log(YTVideoId, video);
           const exists = await FacebookVideo.find({ videoId: video.id });
 
           if (exists.length === 0 && video.liveStreamingDetails.actualEndTime) {
