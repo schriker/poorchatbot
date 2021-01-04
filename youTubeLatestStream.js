@@ -71,8 +71,6 @@ const getYTVideoDetials = (id) => {
         id: id,
       });
 
-      console.log(videoDetails.data.items);
-
       const [videoFromYouTube] = videoDetails.data.items;
 
       resolve(videoFromYouTube);

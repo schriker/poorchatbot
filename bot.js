@@ -122,21 +122,7 @@ const bot = async () => {
   console.log('Working...');
   client.on('message', messageHandler);
   client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage));
-  // Korona
-  client.on('message', (message) => koronaVote(message, client));
-  try {
-    new CronJob(
-      '00 25 09 * * *',
-      () => {
-        stopKoronaVote(client);
-      },
-      null,
-      true
-    );
-  } catch (cronerr) {
-    console.log('Invalid cron');
-  }
-  // Korona
+
   notifier.addEventListener('message', async (response) => {
     const data = JSON.parse(response.data);
     message = merge(message, data);
