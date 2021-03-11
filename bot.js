@@ -14,6 +14,7 @@ const modeHandler = require('./bot/modeHandler');
 const videoDownloader = require('./videoDownloader');
 const fetchTwitchMessages = require('./twitchMessages');
 const { koronaVote, stopKoronaVote } = require('./bot/koronaVote');
+const { lastStream } = require('./bot/lastStream');
 const {
   getCurrentYTStream,
   getYTVideoDetials,
@@ -121,6 +122,7 @@ const bot = async () => {
 
   console.log('Working...');
   client.on('message', messageHandler);
+  client.on('message', (IRCMessage) => lastStream(IRCMessage, client));
   client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage));
 
   notifier.addEventListener('message', async (response) => {
