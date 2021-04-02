@@ -18,7 +18,7 @@ mongoose
     bot();
     try {
       new CronJob(
-        '00 00 04 * * *',
+        '00 00 06 * * *',
         () => {
           wykopNotifier();
         },

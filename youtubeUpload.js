@@ -42,7 +42,7 @@ const youtubeUpload = (fileName, facebookVideo) => {
       });
 
       const startDate = moment(facebookVideo.started)
-        .add(2, 'hours')
+        // .add(2, 'hours')
         .locale('pl')
         .format('DD MMMM YYYY (H:mm)');
 
