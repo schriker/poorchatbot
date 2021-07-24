@@ -62,7 +62,13 @@ const connect = (afterConnectCallback) => {
 };
 
 const removeDuplicates = async () => {
-  const messages = await Message.find({ type: 'TWITCH' }).sort({
+  const messages = await Message.find({
+    type: 'TWITCH',
+    createdAt: {
+      $gt: '2021-07-19T15:50:46.000+00:00',
+      $lt: '2021-07-19T21:08:03.715+00:00',
+    },
+  }).sort({
     createdAt: -1,
   });
   console.log(messages.length);
@@ -80,7 +86,7 @@ const removeDuplicates = async () => {
   });
 };
 
-// connect(() => fetchTwitchMessages(812377816));
+// connect(() => fetchTwitchMessages(1091515707));
 // connect(removeDuplicates);
 
 module.exports = fetchTwitchMessages;

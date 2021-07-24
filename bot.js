@@ -60,18 +60,18 @@ const bot = async () => {
     login: config.USER_LOGIN,
     password: config.USER_PASSWORD,
     cap: [
-	'CAP REQ :batch',
-      	'CAP REQ :cap-notify',
-      	'CAP REQ :echo-message',
-      	'CAP REQ :server-time',
-      	'CAP REQ :msgid',
-      	'CAP REQ :poorchat.net/blocks',
-      	'CAP REQ :poorchat.net/clear',
-      	'CAP REQ :poorchat.net/embed',
-      	'CAP REQ :poorchat.net/color',
-      	'CAP REQ :poorchat.net/subscription',
-      	'CAP REQ :poorchat.net/subscriptiongifter',
-      	'CAP REQ :multi-prefix',
+      'CAP REQ :batch',
+      'CAP REQ :cap-notify',
+      'CAP REQ :echo-message',
+      'CAP REQ :server-time',
+      'CAP REQ :msgid',
+      'CAP REQ :poorchat.net/blocks',
+      'CAP REQ :poorchat.net/clear',
+      'CAP REQ :poorchat.net/embed',
+      'CAP REQ :poorchat.net/color',
+      'CAP REQ :poorchat.net/subscription',
+      'CAP REQ :poorchat.net/subscriptiongifter',
+      'CAP REQ :multi-prefix',
     ],
     debug: false,
   };
@@ -135,11 +135,10 @@ const bot = async () => {
   notifier.addEventListener('message', async (response) => {
     const data = JSON.parse(response.data);
     message = merge(message, data);
-console.log(message);
-    if (message.data.type === 'ping') {
+    console.log(message);
+    if (message.type === 'ping') {
       const pong = JSON.stringify({ type: 'pong' });
       notifier.send(pong);
-      return;
     }
 
     const newMessageStatus = message.data.stream.services
@@ -163,7 +162,6 @@ console.log(message);
 
         console.log(`Stream: [Online] - ${date} - ${service.id}`);
       } else if (!currentStatus) {
-	      console.log(message.data.stream.services);
         console.log(`Stream: [Offline] - ${date}`);
         searchFacebookVideo(message.data.topic.text);
       }
@@ -173,7 +171,9 @@ console.log(message);
   const searchFacebookVideo = async (videoTitle) => {
     if (
       videoStartDate &&
-      (service.name === 'twitch' || service.name === 'trovo' || service.name === 'youtube')
+      (service.name === 'twitch' ||
+        service.name === 'trovo' ||
+        service.name === 'youtube')
     ) {
       try {
         if (service.name === 'twitch' || service.name === 'trovo') {
@@ -186,7 +186,7 @@ console.log(message);
 
           const video = response.data.data[0];
 
-		console.log(response);
+          console.log(response);
           const duration_array = video.duration.split(/[hms]+/);
           const parsed = duration_array
             .filter((number) => number !== '')
