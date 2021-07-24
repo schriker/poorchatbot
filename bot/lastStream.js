@@ -10,7 +10,7 @@ exports.lastStream = async (IRCMessage, client) => {
   if (comand && comand[1] === 'ostatnia') {
     const [video] = await FacebookVideo.find().sort({ createdAt: -1 }).limit(1);
     const startTime = moment(video.started).format('DD-MM-YYYY-H:mm');
-    const endedTime = moment(video.createdAt).format('DD-MM-YYYYH:mm');
+    const endedTime = moment(video.createdAt).format('DD-MM-YYYY-H:mm');
     
     client.pm(
       messageData.author,

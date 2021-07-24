@@ -71,7 +71,7 @@ class Poorchat extends EventEmitter {
                         this.sendMessage(`PONG irc.poorchat.net`)
                     }, 30000)
                     console.log('IRC Conntected!')
-                    resolve()
+		    resolve()
                 }
 
                 this.messageHandler(message)
