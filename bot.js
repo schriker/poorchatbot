@@ -52,6 +52,7 @@ const bot = async () => {
   let highLightsTime = null;
   let highLightsTimer = null;
   let totalMessagesCount = 0;
+  let notifierPongInterval = null;
 
   const options = {
     websocket: 'https://irc.poorchat.net/',
@@ -132,10 +133,22 @@ const bot = async () => {
   client.on('message', (IRCMessage) => lastStream(IRCMessage, client));
   client.on('mode', async (IRCMessage) => await modeHandler(IRCMessage));
 
+  if (!notifierPongInterval) {
+    notifierPongInterval = setInterval(() => {
+      const pong = JSON.stringify({ type: 'pong' });
+      notifier.send(pong);
+    }, 30000);
+  }
+
+  notifier.addEventListener('close', () => {
+    clearInterval(notifierPongInterval);
+    notifierPongInterval = null;
+  });
+
   notifier.addEventListener('message', async (response) => {
     const data = JSON.parse(response.data);
     message = merge(message, data);
-    console.log(message);
+    console.log(message.type, new Date());
     if (message.type === 'ping') {
       const pong = JSON.stringify({ type: 'pong' });
       notifier.send(pong);
