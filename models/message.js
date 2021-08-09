@@ -17,6 +17,7 @@ const messageSchema = new Schema({
     type: String
   },
   subscription: Number,
+  subscriptionBadge: Number,
   subscriptiongifter: Number,
   week_position: Number,
   }, 

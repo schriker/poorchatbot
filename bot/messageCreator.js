@@ -2,6 +2,7 @@ const messageCreator = (IRCMessage, date) => {
   const messageBody = IRCMessage.params[1]
   const messageChannel  = IRCMessage.params[0]
   let subscription = 0
+  let subscriptionBadge = null
   let subscriptiongifter = 0
   let week_position = null
 
@@ -9,6 +10,7 @@ const messageCreator = (IRCMessage, date) => {
   
   if (IRCMessage.tags['poorchat.net/subscription']) {
       subscription = JSON.parse(IRCMessage.tags['poorchat.net/subscription'].replace(/\\s/g,'')).months
+      subscriptionBadge = JSON.parse(IRCMessage.tags['poorchat.net/subscription'].replace(/\\s/g,'')).badge
   }
 
   if (IRCMessage.tags['poorchat.net/subscriptiongifter']) {
@@ -23,6 +25,7 @@ const messageCreator = (IRCMessage, date) => {
       body: messageBody,
       color: IRCMessage.tags['poorchat.net/color'] || '',
       subscription: subscription,
+      subscriptionBadge: subscriptionBadge,
       subscriptiongifter: subscriptiongifter,
       week_position: week_position
   }

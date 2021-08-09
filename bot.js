@@ -148,7 +148,6 @@ const bot = async () => {
   notifier.addEventListener('message', async (response) => {
     const data = JSON.parse(response.data);
     message = merge(message, data);
-    console.log(message.type, new Date());
     if (message.type === 'ping') {
       const pong = JSON.stringify({ type: 'pong' });
       notifier.send(pong);
@@ -199,7 +198,6 @@ const bot = async () => {
 
           const video = response.data.data[0];
 
-          console.log(response);
           const duration_array = video.duration.split(/[hms]+/);
           const parsed = duration_array
             .filter((number) => number !== '')
