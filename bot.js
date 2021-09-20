@@ -8,6 +8,7 @@ const config = require('./config.json');
 const merge = require('lodash.merge');
 const axios = require('axios');
 const msToTime = require('./helpers/milisecondsToTime');
+const sleep = require('./helpers/sleep');
 const messageCreator = require('./bot/messageCreator');
 const countChatData = require('./bot/countChatData');
 const modeHandler = require('./bot/modeHandler');
@@ -247,6 +248,7 @@ const bot = async () => {
             fetchTwitchMessages(savedVideo.videoId);
           }
         } else {
+          await sleep(1000 * 60 * 5);
           const video = await getYTVideoDetials(YTVideoId);
           const exists = await FacebookVideo.find({ videoId: video.id });
 
