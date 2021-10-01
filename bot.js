@@ -279,7 +279,7 @@ const bot = async () => {
               views: 0,
               duration: parsed.join(':'),
               started: video.liveStreamingDetails.actualStartTime,
-              thumbnail: `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`,
+              thumbnail: `https://i.ytimg.com/vi/${video.id}/mq3.jpg`,
               public: true,
               highLights: videoHighLights,
               screenshots: [],
