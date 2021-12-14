@@ -83,7 +83,9 @@ const bot = async () => {
     const message = new Message(messageData);
 
     try {
-      message.save();
+      if (message.author.toLowerCase() !== "guest") {
+        message.save();
+      }
     } catch (error) {
       console.log(error);
     }

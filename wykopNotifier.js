@@ -6,11 +6,11 @@ const ReconnectingWebSocket = require('reconnecting-websocket');
 
 const wykopNotifier = async () => {
   const lt = new Date(
-    new Date(new Date().setUTCHours(22, 0, 0, 0)).getTime() -
+    new Date(new Date().setUTCHours(23, 0, 0, 0)).getTime() -
       24 * 60 * 60 * 1000
   );
   const gt = new Date(
-    new Date(new Date().setUTCHours(22, 0, 0, 0)).getTime() -
+    new Date(new Date().setUTCHours(23, 0, 0, 0)).getTime() -
       48 * 60 * 60 * 1000
   );
   const postDate = lt.toISOString().split('T')[0];
