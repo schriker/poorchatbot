@@ -255,24 +255,13 @@ const bot = async () => {
           const exists = await FacebookVideo.find({ videoId: video.id });
 
           if (exists.length === 0 && video.liveStreamingDetails.actualEndTime) {
-            const duration_array = video.contentDetails.duration
-              .split('PT')
-              .pop()
-              .toLowerCase()
-              .split(/[hms]+/);
-            const parsed = duration_array
-              .filter((number) => number !== '')
-              .map((number) => {
-                if (number.length === 1) {
-                  return `0${number}`;
-                } else {
-                  return number;
-                }
-              });
+            const iso8601DurationRegex = /PT(?:([.,\d]+)H)?(?:([.,\d]+)M)?(?:([.,\d]+)S)?/;
 
-            while (parsed.length < 3) {
-              parsed.unshift('00');
-            }
+            const matches = video.contentDetails.duration.match(iso8601DurationRegex);
+
+            matches.shift();
+
+            const parsed = matches.map((time) => time === undefined ? "00" : time.length === 1 ? `0${time}` : time);
 
             facebookVideoData = {
               videoId: video.id,
